@@ -1,0 +1,14 @@
+/Backend/.env
+/Backend/node_modules
+/Backend/dist
+/Backend/dist-ssr
+/Backend/.vscode/*
+!/Backend/.vscode/extensions.json
+/Backend/.idea
+/Backend/.DS_Store
+/Backend/*.suo
+/Backend/*.ntvs*
+/Backend/*.njsproj
+/Backend/*.sln
+/Backend/*.sw?
+/Backend/.history
