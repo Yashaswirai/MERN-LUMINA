@@ -37,8 +37,12 @@ const addOrderItems = async (req, res) => {
 // @route   GET /api/orders/myorders
 // @access  Private
 const getMyOrders = async (req, res) => {
-  const orders = await Order.find({ user: req.user._id });
-  res.json(orders);
+  try {
+    const orders = await Order.find({ user: req.user._id }).populate('items.product');
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch orders' });
+  }
 };
 
 // @desc    Get order by ID

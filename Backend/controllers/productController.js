@@ -4,81 +4,51 @@ const Product = require('../models/Product');
 // @route   GET /api/products
 // @access  Public
 const getProducts = async (req, res) => {
-  const pageSize = Number(req.query.limit) || 10;
-  const page = Number(req.query.pageNumber) || 1;
-  const keyword = req.query.keyword || '';
-  const sortBy = req.query.sort || 'all';
-  const available = req.query.available === 'true';
-  const discountOnly = req.query.discount === 'true';
+  const { search, sort, filter } = req.query;
 
-  let query = {
-    name: { $regex: keyword, $options: 'i' },
-  };
+  // Build query filter for MongoDB
+  let filterQuery = {};
 
-  // Filter: Availability
-  if (available) {
-    query.countInStock = { $gt: 0 };
+  if (filter === 'available') {
+    filterQuery.countInStock = { $gt: 0 }; // Available products
   }
 
-  // Filter: Discount
-  if (discountOnly) {
-    query.discount = { $gt: 0 };
+  if (filter === 'discounted') {
+    filterQuery.discounted = true; // Assuming you have a 'discounted' field
   }
 
-  // Sorting logic
-  let sortOptions = {};
-  switch (sortBy) {
-    case 'popular':
-      sortOptions.numOrders = -1;
-      break;
+  // Handle search query
+  if (search) {
+    filterQuery.name = { $regex: search, $options: 'i' }; // Case-insensitive search
+  }
+
+  // Sorting options
+  let sortQuery = {};
+  switch (sort) {
     case 'newest':
-      sortOptions.createdAt = -1;
+      sortQuery.createdAt = -1;
+      break;
+    case 'popular':
+      sortQuery.popularity = -1; // Assuming you have a 'popularity' field
       break;
     case 'newCollection':
-      query.isNewCollection = true;
-      sortOptions.createdAt = -1;
+      sortQuery.createdAt = -1; // Or based on a custom field for new collections
       break;
     case 'discounted':
-      query.discount = { $gt: 0 };
-      sortOptions.discount = -1;
+      sortQuery.price = 1; // Assuming discounted products are sorted by price (low to high)
       break;
-    case 'all':
     default:
-      sortOptions.createdAt = -1;
-      break;
+      sortQuery = {}; // No sorting by default
   }
 
-  const count = await Product.countDocuments(query);
-  const products = await Product.find(query)
-    .sort(sortOptions)
-    .limit(pageSize)
-    .skip(pageSize * (page - 1));
-
-  const productsWithImages = products.map((product) => {
-    let imageBase64 = null;
-    if (product.image && product.image.data) {
-      imageBase64 = `data:${product.image.contentType};base64,${product.image.data.toString('base64')}`;
-    }
-
-    return {
-      _id: product._id,
-      name: product.name,
-      price: product.price,
-      description: product.description,
-      countInStock: product.countInStock,
-      discount: product.discount,
-      isNewCollection: product.isNewCollection,
-      image: imageBase64,
-    };
-  });
-
-  res.json({
-    products: productsWithImages,
-    page,
-    pages: Math.ceil(count / pageSize),
-    totalProducts: count,
-  });
+  try {
+    const products = await Product.find(filterQuery).sort(sortQuery);
+    res.json({ products, page: 1, pages: 1, totalProducts: products.length });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
+
 
 
 // @desc    Get a single product by ID
@@ -111,8 +81,6 @@ const getProductById = async (req, res) => {
 // @desc    Add a new product (admin only)
 // @route   POST /api/products/add
 // @access  Private/Admin
-
-
 // Admin: Create a product with image uploaded as Buffer
 const addProduct = async (req, res) => {
   const { name, price, description, countInStock } = req.body;
