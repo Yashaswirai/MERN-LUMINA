@@ -6,8 +6,8 @@ import connectDB from './config/db.js';
 dotenv.config();
 await connectDB();
 
-const email = 'admin@example.com';
-const password = 'admin123';
+const email = 'admin@admin.com';
+const password = 'admin';
 
 const existingAdmin = await User.findOne({ email });
 

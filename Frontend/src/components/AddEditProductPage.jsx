@@ -69,7 +69,7 @@ const AddEditProductPage = () => {
         });
         setMessage('Product updated successfully!');
       } else {
-        await API.post('/products', uploadData, {
+        await API.post('/products/add', uploadData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         setMessage('Product added successfully!');
@@ -89,7 +89,7 @@ const AddEditProductPage = () => {
 
       {message && <p className="mb-4 text-red-600">{message}</p>}
 
-      <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
           name="name"
           value={formData.name}

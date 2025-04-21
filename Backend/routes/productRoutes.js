@@ -6,13 +6,17 @@ const {
   getProductById,
   addProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getProductImage,
 } = require('../controllers/productController');
 const { protect, isAdmin } = require('../middleware/authMiddleware');
 
 // Public product routes
 router.get('/', getProducts);
 router.get('/:id', getProductById);
+
+// Route to serve product images
+router.get('/:id/image', getProductImage);
 
 // Admin-only route 
 router.post('/add', protect, isAdmin, upload.single('image'), addProduct); // 👈 admin access only

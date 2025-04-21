@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
-import API from '../utils/api';
+import { useState, useEffect } from "react";
+import API from "../utils/api";
 
 const ShopPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // States for filter, sorting, and search
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState('newest');
-  const [filterOption, setFilterOption] = useState('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOption, setSortOption] = useState("newest");
+  const [filterOption, setFilterOption] = useState("all");
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await API.get('/products', {
+      const res = await API.get("/products", {
         params: {
           search: searchQuery,
           sort: sortOption,
@@ -22,7 +22,7 @@ const ShopPage = () => {
       });
       setProducts(res.data.products);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
     }
@@ -83,16 +83,22 @@ const ShopPage = () => {
       {loading ? (
         <div>Loading...</div>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           {products.map((product) => (
-            <div key={product._id} className="border p-4">
-              <img src={product.image} alt={product.name} className="w-full h-40 object-cover" />
+            <div key={product._id} className="w-full border p-4">
+              <img
+                src={`/api/products/${product._id}/image`}
+                alt={product.name}
+                className="w-full h-40 object-cover object-center"
+              />
               <h3 className="text-xl">{product.name}</h3>
               <p>{product.description}</p>
               <p>${product.price}</p>
               <p>Stock: {product.countInStock}</p>
               {/* Add to Cart Button */}
-              <button className="bg-blue-500 text-white px-4 py-2 mt-2">Add to Cart</button>
+              <button className="bg-blue-500 text-white px-4 py-2 mt-2">
+                Add to Cart
+              </button>
             </div>
           ))}
         </div>

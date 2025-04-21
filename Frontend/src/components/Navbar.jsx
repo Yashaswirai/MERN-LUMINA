@@ -18,41 +18,36 @@ const Navbar = () => {
       </Link>
 
       {user ? (
-        user.isAdmin ? (
-          <>
-            <Link to="/admin/profile" className="hover:underline">
-              Admin Profile
-            </Link>
-            <Link to="/admin/orders" className="hover:underline">
-              Orders
-            </Link>
-            <Link
-              to="/admin/dashboard"
-              className="hover:underline"
-            >
-              Admin Dashboard
-            </Link>
-            <button onClick={handleLogout} className="hover:underline">
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <Link to="/profile" className="hover:underline">
-              My Account
-            </Link>
-            <Link to="/cart" className="hover:underline">
-              Cart
-            </Link>
-            <button onClick={handleLogout} className="hover:underline">
-              Logout
-            </button>
-          </>
-        )
+        <>
+          {user.isAdmin ? (
+            <>
+              <Link to="/admin/profile" className="hover:underline">
+                Admin Profile
+              </Link>
+              <Link to="/admin/orders" className="hover:underline">
+                Orders
+              </Link>
+              <Link to="/admin/dashboard" className="hover:underline">
+                Admin Dashboard
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/profile" className="hover:underline">
+                My Account
+              </Link>
+              <Link to="/cart" className="hover:underline">
+                Cart
+              </Link>
+            </>
+          )}
+          <button onClick={handleLogout} className="hover:underline">
+            Logout
+          </button>
+        </>
       ) : (
-        <Link to="/" className="hover:underline">
-          Login
-        </Link>
+        <>
+        </>
       )}
     </div>
   );

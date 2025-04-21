@@ -49,8 +49,6 @@ const getProducts = async (req, res) => {
   }
 };
 
-
-
 // @desc    Get a single product by ID
 // @route   GET /api/products/:id
 // @access  Public
@@ -77,12 +75,9 @@ const getProductById = async (req, res) => {
   }
 };
 
-
 // @desc    Add a new product (admin only)
 // @route   POST /api/products/add
 // @access  Private/Admin
-// Admin: Create a product with image uploaded as Buffer
-// @desc    Create a new product
 const addProduct = async (req, res) => {
   const { name, price, description, countInStock, iisNewCollection, discount } = req.body;
 
@@ -90,21 +85,31 @@ const addProduct = async (req, res) => {
     ? { data: req.file.buffer, contentType: req.file.mimetype }
     : undefined;
 
-  const product = new Product({
-    name,
-    price,
-    description,
-    countInStock,
-    iisNewCollection,
-    discount,
-    image,
-  });
+  if (!name || !price || !description || !countInStock) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
 
-  const created = await product.save();
-  res.status(201).json(created);
+  try {
+    const product = new Product({
+      name,
+      price,
+      description,
+      countInStock,
+      iisNewCollection,
+      discount,
+      image,
+    });
+
+    const createdProduct = await product.save();
+    res.status(201).json(createdProduct);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // @desc    Update a product
+// @route   PUT /api/products/:id
+// @access  Private/Admin
 const updateProduct = async (req, res) => {
   const { name, price, description, countInStock, iisNewCollection, discount } = req.body;
 
@@ -116,8 +121,16 @@ const updateProduct = async (req, res) => {
   product.price = price || product.price;
   product.description = description || product.description;
   product.countInStock = countInStock || product.countInStock;
-  product.iisNewCollection = iisNewCollection === 'true' || false;
-  product.discount = discount || 0;
+  product.iisNewCollection = iisNewCollection === 'true' || product.iisNewCollection;
+
+  // Validate and assign discount
+  if (discount !== undefined) {
+    const parsedDiscount = Number(discount);
+    if (isNaN(parsedDiscount)) {
+      return res.status(400).json({ message: 'Invalid discount value' });
+    }
+    product.discount = parsedDiscount;
+  }
 
   if (req.file) {
     product.image = {
@@ -126,27 +139,52 @@ const updateProduct = async (req, res) => {
     };
   }
 
-  const updated = await product.save();
-  res.json(updated);
-};
-
-
-// ✅ Admin: Delete a product
-const deleteProduct = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (product) {
-    await product.remove();
-    res.json({ message: 'Product removed' });
-  } else {
-    res.status(404).json({ message: 'Product not found' });
+  try {
+    const updated = await product.save();
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };
 
+// ✅ Admin: Delete a product
+const deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json({ message: 'Product removed' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get product image by ID
+// @route   GET /api/products/:id/image
+// @access  Public
+const getProductImage = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product || !product.image || !product.image.data) {
+      return res.status(404).json({ message: 'Image not found' });
+    }
+
+    res.set('Content-Type', product.image.contentType);
+    res.send(product.image.data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
   getProducts,
   getProductById,
   addProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getProductImage,
 };
