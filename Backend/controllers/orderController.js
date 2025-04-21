@@ -71,9 +71,15 @@ const getOrderById = async (req, res) => {
 // @route   GET /api/orders
 // @access  Private/Admin
 const getAllOrders = async (req, res) => {
-  const orders = await Order.find({}).populate("user", "id name email");
-  res.json(orders);
+  try {
+    const orders = await Order.find({}).populate("user", "id name email");
+    res.json(orders);
+  } catch (error) {
+    console.error("Error fetching orders:", error); // Add this log for debugging
+    res.status(500).json({ message: 'Failed to fetch orders' });
+  }
 };
+
 
 // @desc    Mark order as delivered
 // @route   PUT /api/orders/:id/deliver

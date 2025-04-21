@@ -16,7 +16,7 @@ router.get('/:id', getProductById);
 
 // Admin-only route 
 router.post('/add', protect, isAdmin, upload.single('image'), addProduct); // 👈 admin access only
-router.put('/:id', protect, isAdmin, updateProduct);
+router.put('/:id', protect, isAdmin, upload.single('image'), updateProduct);
 router.delete('/:id', protect, isAdmin, deleteProduct);
 
 module.exports = router;

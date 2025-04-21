@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -11,23 +10,45 @@ const Navbar = () => {
     logout();
     navigate("/");
   };
+
   return (
-    <div className="space-x-4">
-      <Link to="/shop" className="hover:underline">
-        Shop
+    <div className="space-x-4 p-4 bg-gray-100 shadow-md">
+      <Link to="/shop" className="font-bold text-xl text-indigo-600">
+        LUMINA
       </Link>
+
       {user ? (
-        <>
-          <Link to="/profile" className="hover:underline">
-            My Account
-          </Link>
-          <Link to="/cart" className="hover:underline">
-            Cart
-          </Link>
-          <button onClick={handleLogout} className="hover:underline">
-            Logout
-          </button>
-        </>
+        user.isAdmin ? (
+          <>
+            <Link to="/admin/profile" className="hover:underline">
+              Admin Profile
+            </Link>
+            <Link to="/admin/orders" className="hover:underline">
+              Orders
+            </Link>
+            <Link
+              to="/admin/dashboard"
+              className="hover:underline"
+            >
+              Admin Dashboard
+            </Link>
+            <button onClick={handleLogout} className="hover:underline">
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/profile" className="hover:underline">
+              My Account
+            </Link>
+            <Link to="/cart" className="hover:underline">
+              Cart
+            </Link>
+            <button onClick={handleLogout} className="hover:underline">
+              Logout
+            </button>
+          </>
+        )
       ) : (
         <Link to="/" className="hover:underline">
           Login

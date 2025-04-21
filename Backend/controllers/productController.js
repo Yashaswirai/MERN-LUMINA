@@ -82,47 +82,54 @@ const getProductById = async (req, res) => {
 // @route   POST /api/products/add
 // @access  Private/Admin
 // Admin: Create a product with image uploaded as Buffer
+// @desc    Create a new product
 const addProduct = async (req, res) => {
-  const { name, price, description, countInStock } = req.body;
-  const { buffer, mimetype } = req.file; // Get image buffer and MIME type
+  const { name, price, description, countInStock, iisNewCollection, discount } = req.body;
+
+  const image = req.file
+    ? { data: req.file.buffer, contentType: req.file.mimetype }
+    : undefined;
 
   const product = new Product({
     name,
     price,
     description,
-    image: {
-      data: buffer, // Store image as Buffer
-      contentType: mimetype, // Store MIME type
-    },
     countInStock,
+    iisNewCollection,
+    discount,
+    image,
   });
 
-  try {
-    const createdProduct = await product.save();
-    res.status(201).json(createdProduct);
-  } catch (error) {
-    res.status(500).json({ message: 'Error while saving product' });
-  }
+  const created = await product.save();
+  res.status(201).json(created);
 };
 
-// ✅ Admin: Update a product
+// @desc    Update a product
 const updateProduct = async (req, res) => {
-  const { name, price, description, image, countInStock } = req.body;
+  const { name, price, description, countInStock, iisNewCollection, discount } = req.body;
+
   const product = await Product.findById(req.params.id);
 
-  if (product) {
-    product.name = name || product.name;
-    product.price = price || product.price;
-    product.description = description || product.description;
-    product.image = image || product.image;
-    product.countInStock = countInStock || product.countInStock;
+  if (!product) return res.status(404).json({ message: 'Product not found' });
 
-    const updatedProduct = await product.save();
-    res.json(updatedProduct);
-  } else {
-    res.status(404).json({ message: 'Product not found' });
+  product.name = name || product.name;
+  product.price = price || product.price;
+  product.description = description || product.description;
+  product.countInStock = countInStock || product.countInStock;
+  product.iisNewCollection = iisNewCollection === 'true' || false;
+  product.discount = discount || 0;
+
+  if (req.file) {
+    product.image = {
+      data: req.file.buffer,
+      contentType: req.file.mimetype,
+    };
   }
+
+  const updated = await product.save();
+  res.json(updated);
 };
+
 
 // ✅ Admin: Delete a product
 const deleteProduct = async (req, res) => {

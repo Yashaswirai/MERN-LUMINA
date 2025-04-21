@@ -1,9 +1,15 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/useAuth"; // ✅ This is correct
+// components/AdminRoute.jsx
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 
 const AdminRoute = ({ children }) => {
   const { user } = useAuth();
-  return user && user.isAdmin ? children : <Navigate to="/" />;
+
+  if (!user || !user.isAdmin) {
+    return <Navigate to="/" />;
+  }
+
+  return children;
 };
 
 export default AdminRoute;
