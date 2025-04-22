@@ -1,11 +1,14 @@
 import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import API from '../utils/api';
+import { AuthContext } from '../../context/AuthContext';
+import API from '../../services/api';
 import { FaBox, FaUser, FaShoppingBag, FaMapMarkerAlt, FaCreditCard, FaCalendarAlt, FaTruck, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useToast } from '../../context/ToastContext';
 
 const ProfilePage = () => {
   const { user, updateUser } = useContext(AuthContext);
+  const { showSuccess, showError } = useToast();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [message, setMessage] = useState('');
@@ -23,7 +26,7 @@ const ProfilePage = () => {
         setOrders(res.data);
         setLoading(false);
       } catch (err) {
-        console.error('Failed to fetch orders', err);
+        showError('Failed to fetch orders. Please try again.');
         setLoading(false);
       }
     };
@@ -31,7 +34,7 @@ const ProfilePage = () => {
     if (user) {
       fetchOrders();
     }
-  }, [user]);
+  }, [user, showError]);
 
   // Handle profile update
   const handleUpdateProfile = async (e) => {
@@ -42,10 +45,13 @@ const ProfilePage = () => {
       updateUser(res.data);  // Update user context
       setMessage('Profile updated successfully!');
       setMessageType('success');
+      showSuccess('Profile updated successfully!');
       setLoading(false);
     } catch (err) {
-      setMessage(err.response?.data?.message || 'Something went wrong');
+      const errorMessage = err.response?.data?.message || 'Something went wrong';
+      setMessage(errorMessage);
       setMessageType('error');
+      showError(errorMessage);
       setLoading(false);
     }
   };
@@ -140,7 +146,14 @@ const ProfilePage = () => {
                   disabled={loading}
                   className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                  {loading ? 'Updating...' : 'Update Profile'}
+                  {loading ? (
+                    <div className="flex items-center">
+                      <LoadingSpinner size="small" color="white" />
+                      <span className="ml-2">Updating...</span>
+                    </div>
+                  ) : (
+                    'Update Profile'
+                  )}
                 </button>
               </form>
             </div>
@@ -156,7 +169,10 @@ const ProfilePage = () => {
 
             {loading ? (
               <div className="flex justify-center items-center p-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <div className="text-center">
+                  <LoadingSpinner size="large" color="blue" />
+                  <p className="mt-4 text-gray-600">Loading your orders...</p>
+                </div>
               </div>
             ) : orders.length === 0 ? (
               <div className="p-8 text-center">
@@ -207,8 +223,6 @@ const ProfilePage = () => {
             )}
           </div>
         )}
-
-        {/* Order Details Modal could be added here */}
       </div>
     </div>
   );

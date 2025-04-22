@@ -1,4 +1,3 @@
-// src/utils/api.js
 import axios from 'axios';
 
 const API = axios.create({
@@ -16,7 +15,7 @@ API.interceptors.request.use((config) => {
         config.headers.Authorization = `Bearer ${user.token}`;
       }
     } catch (error) {
-      console.error('Error parsing user info:', error);
+      // Error parsing user info
     }
   }
   return config;

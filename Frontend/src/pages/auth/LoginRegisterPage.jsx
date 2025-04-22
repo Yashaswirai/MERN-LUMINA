@@ -1,12 +1,12 @@
 import { useState, useContext, useEffect } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import API from "../utils/api";
-import { useToast } from "../context/ToastContext";
-import LoadingSpinner from "../components/LoadingSpinner";
+import API from "../../services/api";
+import { useToast } from "../../context/ToastContext";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { FaEnvelope, FaLock, FaUser, FaSignInAlt, FaUserPlus } from "react-icons/fa";
 
-const HomePage = () => {
+const LoginRegisterPage = () => {
   const { login, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
@@ -285,4 +285,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default LoginRegisterPage;

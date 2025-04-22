@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { loadRazorpayScript, getRazorpayKey, createRazorpayOrder, verifyRazorpayPayment } from '../utils/razorpay';
+import { loadRazorpayScript, getRazorpayKey, createRazorpayOrder, verifyRazorpayPayment } from '../services/razorpay';
 import { SiRazorpay } from 'react-icons/si';
 
 const RazorpayPayment = ({ order, onSuccess, onError }) => {

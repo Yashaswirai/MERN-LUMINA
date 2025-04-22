@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import { CartContext } from '../context/CartContext';
-import { useToast } from '../context/ToastContext';
-import API from '../utils/api';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { AuthContext } from '../../context/AuthContext';
+import { CartContext } from '../../context/CartContext';
+import { useToast } from '../../context/ToastContext';
+import API from '../../services/api';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { FaArrowLeft, FaShoppingCart, FaStar, FaStarHalfAlt, FaRegStar, FaCheck, FaTimes, FaShippingFast, FaBox, FaHeart, FaShare } from 'react-icons/fa';
 
 const ProductDetailPage = () => {
@@ -13,7 +13,7 @@ const ProductDetailPage = () => {
   const { user } = useContext(AuthContext);
   const { addToCart, cartItems } = useContext(CartContext);
   const { showSuccess, showError, showInfo } = useToast();
-
+  
   // Check if product is already in cart
   const isInCart = () => {
     return cartItems.some(item => item._id === productId);
@@ -47,34 +47,34 @@ const ProductDetailPage = () => {
       navigate('/');
       return;
     }
-
+    
     if (product && quantity > 0) {
       if (isInCart()) {
         showInfo('This product is already in your cart. You can adjust the quantity there.');
         return;
       }
-
+      
       addToCart({
         ...product,
         qty: quantity
       });
       setAddedToCart(true);
       showSuccess(`${product.name} added to your cart!`);
-
+      
       // Reset after 3 seconds
       setTimeout(() => {
         setAddedToCart(false);
       }, 3000);
     }
   };
-
+  
   const handleBuyNow = () => {
     if (!user) {
       showError('Please login to purchase items');
       navigate('/');
       return;
     }
-
+    
     if (product && quantity > 0) {
       addToCart({
         ...product,
@@ -270,24 +270,24 @@ const ProductDetailPage = () => {
                         <FaShoppingCart className="mr-2" />
                         {addedToCart ? 'Added!' : 'Add to Cart'}
                       </button>
-
+                      
                       <button
                         onClick={handleBuyNow}
                         className="flex items-center px-4 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
                       >
                         Buy Now
                       </button>
-
+                      
                       <button className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors duration-200">
                         <FaHeart className="text-red-400" />
                       </button>
-
+                      
                       <button className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors duration-200">
                         <FaShare className="text-blue-400" />
                       </button>
                     </>
                   ) : (
-                    <Link
+                    <Link 
                       to="/"
                       className="flex items-center px-6 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200"
                     >

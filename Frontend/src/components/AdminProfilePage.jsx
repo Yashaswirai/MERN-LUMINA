@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import API from '../utils/api';
+import API from '../services/api';
 
 const AdminProfilePage = () => {
   const [admin, setAdmin] = useState({

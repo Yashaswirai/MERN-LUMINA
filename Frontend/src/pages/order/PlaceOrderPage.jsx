@@ -1,10 +1,11 @@
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CartContext } from '../context/CartContext';
-import { useCheckout } from '../context/CheckoutContext';
-import CheckoutSteps from '../components/CheckoutSteps';
-import OrderSummary from '../components/OrderSummary';
-import API from '../utils/api';
+import { CartContext } from '../../context/CartContext';
+import { useCheckout } from '../../context/CheckoutContext';
+import CheckoutSteps from '../../components/CheckoutSteps';
+import OrderSummary from '../../components/OrderSummary';
+import API from '../../services/api';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const PlaceOrderPage = () => {
   const navigate = useNavigate();
@@ -70,10 +71,9 @@ const PlaceOrderPage = () => {
         )}
 
         {loading ? (
-          <div className="text-center py-4">
-            <div className="spinner-border text-primary" role="status">
-              <span className="sr-only">Loading...</span>
-            </div>
+          <div className="text-center py-8">
+            <LoadingSpinner size="large" color="blue" />
+            <p className="mt-4 text-gray-600">Processing your order...</p>
           </div>
         ) : (
           <OrderSummary

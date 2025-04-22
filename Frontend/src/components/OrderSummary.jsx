@@ -2,8 +2,8 @@ import { useContext, useState } from 'react';
 import { CartContext } from '../context/CartContext';
 import { FaMoneyBillWave, FaShoppingBag } from 'react-icons/fa';
 import { SiRazorpay } from 'react-icons/si';
-import { loadRazorpayScript, getRazorpayKey, createRazorpayOrder, verifyRazorpayPayment } from '../utils/razorpay';
-import API from '../utils/api';
+import { loadRazorpayScript, getRazorpayKey, createRazorpayOrder, verifyRazorpayPayment } from '../services/razorpay';
+import API from '../services/api';
 
 const OrderSummary = ({ shippingAddress, paymentMethod, onPlaceOrder }) => {
   const { cartItems } = useContext(CartContext);

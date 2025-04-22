@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import API from "../utils/api";
+import API from "../services/api";
 import { FaSave, FaArrowLeft, FaUpload, FaTag, FaBoxOpen, FaPercentage, FaInfoCircle } from "react-icons/fa";
 
 const AddEditProductPage = () => {

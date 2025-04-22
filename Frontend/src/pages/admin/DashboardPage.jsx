@@ -1,10 +1,13 @@
-// src/components/AdminDashboardPage.jsx
+// src/pages/admin/DashboardPage.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import API from "../utils/api";
+import API from "../../services/api";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { useToast } from "../../context/ToastContext";
 
-const AdminDashboardPage = () => {
+const DashboardPage = () => {
+  const { showSuccess, showError } = useToast();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [message, setMessage] = useState("");
@@ -46,6 +49,7 @@ const AdminDashboardPage = () => {
     } catch (err) {
       setMessage("Failed to fetch products");
       setMessageType("error");
+      showError("Failed to fetch products. Please try again.");
       setLoading(false);
     }
   };
@@ -56,10 +60,12 @@ const AdminDashboardPage = () => {
         await API.delete(`/products/${id}`);
         setMessage("Product deleted successfully");
         setMessageType("success");
+        showSuccess("Product deleted successfully");
         fetchProducts(); // refresh list
       } catch (err) {
         setMessage("Failed to delete product");
         setMessageType("error");
+        showError("Failed to delete product. Please try again.");
       }
     }
   };
@@ -181,7 +187,10 @@ const AdminDashboardPage = () => {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {loading ? (
           <div className="flex justify-center items-center p-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="text-center">
+              <LoadingSpinner size="large" color="blue" />
+              <p className="mt-4 text-gray-600">Loading products...</p>
+            </div>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="text-center p-8 text-gray-500">
@@ -330,4 +339,4 @@ const AdminDashboardPage = () => {
   );
 };
 
-export default AdminDashboardPage;
+export default DashboardPage;

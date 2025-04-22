@@ -1,20 +1,34 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import HomePage from "./pages/HomePage";
-import ShopPage from "./pages/ShopPage";
-import ProfilePage from "./pages/ProfilePage";
-import CartPage from "./pages/CartPage";
-import ShippingPage from "./pages/ShippingPage";
-import PaymentPage from "./pages/PaymentPage";
-import PlaceOrderPage from "./pages/PlaceOrderPage";
-import OrderPage from "./pages/OrderPage";
-import ProductDetailPage from "./pages/ProductDetailPage";
+import { Routes, Route } from "react-router-dom";
+
+// Layout Components
+import Navbar from "./components/layout/Navbar";
+
+// Auth Pages
+import LoginRegisterPage from "./pages/auth/LoginRegisterPage";
+
+// Product Pages
+import ShopPage from "./pages/product/ShopPage";
+import ProductDetailPage from "./pages/product/ProductDetailPage";
+
+// User Pages
+import ProfilePage from "./pages/user/ProfilePage";
+
+// Cart & Checkout Pages
+import CartPage from "./pages/cart/CartPage";
+import ShippingPage from "./pages/cart/ShippingPage";
+import PaymentPage from "./pages/cart/PaymentPage";
+import PlaceOrderPage from "./pages/order/PlaceOrderPage";
+import OrderPage from "./pages/order/OrderPage";
+
+// Admin Pages
 import AdminProfilePage from "./components/AdminProfilePage";
 import AdminOrderManagementPage from "./components/AdminOrderDashboard";
-import PrivateRoute from "./components/PrivateRoute";
-import AdminRoute from "./components/AdminRoute";
-import AdminDashboardPage from "./components/AdminDashboardPage";
+import DashboardPage from "./pages/admin/DashboardPage";
 import AddEditProductPage from "./components/AddEditProductPage";
+
+// Route Guards
+import PrivateRoute from "./routes/PrivateRoute";
+import AdminRoute from "./routes/AdminRoute";
 
 const App = () => {
   return (
@@ -22,7 +36,7 @@ const App = () => {
       <Navbar />
       <Routes>
         {/* Public Route */}
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<LoginRegisterPage />} />
         <Route path="/shop" element={<ShopPage />} />
         <Route path="/product/:id" element={<ProductDetailPage />} />
 
@@ -97,7 +111,7 @@ const App = () => {
           path="/admin/dashboard"
           element={
             <AdminRoute>
-              <AdminDashboardPage />
+              <DashboardPage />
             </AdminRoute>
           }
         />

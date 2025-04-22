@@ -1,9 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import API from '../utils/api';
-import RazorpayPayment from '../components/RazorpayPayment';
+import { AuthContext } from '../../context/AuthContext';
+import API from '../../services/api';
+import RazorpayPayment from '../../components/RazorpayPayment';
 import { FaArrowLeft, FaMapMarkerAlt, FaCreditCard, FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaShippingFast, FaCalendarAlt, FaFileInvoiceDollar, FaMoneyBillWave } from 'react-icons/fa';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const OrderPage = () => {
   const { id: orderId } = useParams();
@@ -29,7 +30,6 @@ const OrderPage = () => {
       setAdminActionLoading(true);
       setAdminActionMessage('');
 
-      console.log('Marking order as paid:', orderId);
       const { data } = await API.put(`/orders/${orderId}/pay`, {
         paymentId: 'admin-manual-payment',
         status: 'completed',
@@ -37,11 +37,9 @@ const OrderPage = () => {
         email: order.user.email
       });
 
-      console.log('Order marked as paid response:', data);
       setOrder(data);
       setAdminActionMessage('Order marked as paid successfully');
     } catch (err) {
-      console.error('Error marking order as paid:', err);
       setAdminActionMessage(err.response?.data?.message || 'Failed to mark order as paid');
     } finally {
       setAdminActionLoading(false);
@@ -54,14 +52,11 @@ const OrderPage = () => {
       setAdminActionLoading(true);
       setAdminActionMessage('');
 
-      console.log('Marking order as delivered:', orderId);
       const { data } = await API.put(`/orders/${orderId}/deliver`);
 
-      console.log('Order marked as delivered response:', data);
       setOrder(data);
       setAdminActionMessage('Order marked as delivered successfully');
     } catch (err) {
-      console.error('Error marking order as delivered:', err);
       setAdminActionMessage(err.response?.data?.message || 'Failed to mark order as delivered');
     } finally {
       setAdminActionLoading(false);
@@ -100,7 +95,10 @@ const OrderPage = () => {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="text-center">
+          <LoadingSpinner size="large" color="blue" />
+          <p className="mt-4 text-gray-600">Loading order details...</p>
+        </div>
       </div>
     );
   }
@@ -192,7 +190,7 @@ const OrderPage = () => {
 
               {/* Steps */}
               <div className="relative flex justify-between">
-                {orderStatusSteps.map((step, index) => {
+                {orderStatusSteps.map((step) => {
                   const StepIcon = step.icon;
                   return (
                     <div key={step.id} className="flex flex-col items-center">

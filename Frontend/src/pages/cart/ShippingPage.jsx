@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import ShippingAddressForm from '../components/ShippingAddressForm';
-import CheckoutSteps from '../components/CheckoutSteps';
-import { useCheckout } from '../context/CheckoutContext';
+import ShippingAddressForm from '../../components/ShippingAddressForm';
+import CheckoutSteps from '../../components/CheckoutSteps';
+import { useCheckout } from '../../context/CheckoutContext';
 
 const ShippingPage = () => {
   const navigate = useNavigate();

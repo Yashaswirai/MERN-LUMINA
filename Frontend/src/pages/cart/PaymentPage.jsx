@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PaymentMethodSelector from '../components/PaymentMethodSelector';
-import CheckoutSteps from '../components/CheckoutSteps';
-import { useCheckout } from '../context/CheckoutContext';
+import PaymentMethodSelector from '../../components/PaymentMethodSelector';
+import CheckoutSteps from '../../components/CheckoutSteps';
+import { useCheckout } from '../../context/CheckoutContext';
 
 const PaymentPage = () => {
   const navigate = useNavigate();

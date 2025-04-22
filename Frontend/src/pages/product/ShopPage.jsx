@@ -1,12 +1,16 @@
 import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import API from "../utils/api";
-import { CartContext } from "../context/CartContext";
-import { AuthContext } from "../context/AuthContext";
+import API from "../../services/api";
+import { CartContext } from "../../context/CartContext";
+import { AuthContext } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { FaSearch, FaFilter, FaSort } from "react-icons/fa";
 
 const ShopPage = () => {
   const { addToCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
+  const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +33,7 @@ const ShopPage = () => {
       });
       setProducts(res.data.products);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      showError("Failed to load products. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -54,12 +58,19 @@ const ShopPage = () => {
   const handleAddToCart = (product) => {
     // Check if user is logged in
     if (!user) {
-      // Redirect to login page
+      showError("Please login to add items to your cart");
       navigate('/');
       return;
     }
 
+    if (product.countInStock === 0) {
+      showError("Sorry, this product is out of stock");
+      return;
+    }
+
     addToCart(product);
+    showSuccess(`${product.name} added to your cart!`);
+    
     // Show visual feedback
     setAddedToCart({ ...addedToCart, [product._id]: true });
 
@@ -77,12 +88,12 @@ const ShopPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search Bar */}
           <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <FaSearch className="mr-1" /> Search
+            </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <FaSearch className="h-5 w-5 text-gray-400" />
               </div>
               <input
                 type="text"
@@ -97,7 +108,9 @@ const ShopPage = () => {
 
           {/* Sorting Dropdown */}
           <div>
-            <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+            <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <FaSort className="mr-1" /> Sort By
+            </label>
             <select
               id="sort"
               className="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -113,7 +126,9 @@ const ShopPage = () => {
 
           {/* Filter Dropdown */}
           <div>
-            <label htmlFor="filter" className="block text-sm font-medium text-gray-700 mb-1">Filter</label>
+            <label htmlFor="filter" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <FaFilter className="mr-1" /> Filter
+            </label>
             <select
               id="filter"
               className="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -130,7 +145,10 @@ const ShopPage = () => {
 
       {loading ? (
         <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="text-center">
+            <LoadingSpinner size="large" color="blue" />
+            <p className="mt-4 text-gray-600">Loading products...</p>
+          </div>
         </div>
       ) : products.length === 0 ? (
         <div className="text-center py-20">
