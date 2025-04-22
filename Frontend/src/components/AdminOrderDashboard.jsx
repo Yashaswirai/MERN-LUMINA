@@ -20,29 +20,36 @@ const AdminOrderDashboard = () => {
 
   const handleMarkAsDelivered = async (orderId) => {
     try {
-      const res = await API.put(`/api/orders/${orderId}/deliver`);
+      const res = await API.put(`/orders/${orderId}/deliver`);
       setOrders((prev) =>
         prev.map((order) =>
-          order._id === orderId ? { ...order, isDelivered: true } : order
+          order._id === orderId ? { ...order, isDelivered: true, deliveredAt: new Date().toISOString() } : order
         )
       );
-      setMessage('Order marked as delivered');
+      setMessage('Order marked as delivered successfully');
     } catch (err) {
-      setMessage('Error marking order as delivered');
+      console.error('Error marking order as delivered:', err);
+      setMessage('Error marking order as delivered: ' + (err.response?.data?.message || err.message));
     }
   };
 
   const handleMarkAsPaid = async (orderId) => {
     try {
-      const res = await API.put(`/api/orders/${orderId}/pay`);
+      const res = await API.put(`/orders/${orderId}/pay`, {
+        paymentId: 'admin-manual-payment',
+        status: 'completed',
+        update_time: new Date().toISOString(),
+        email: 'admin@example.com'
+      });
       setOrders((prev) =>
         prev.map((order) =>
-          order._id === orderId ? { ...order, isPaid: true } : order
+          order._id === orderId ? { ...order, isPaid: true, paidAt: new Date().toISOString() } : order
         )
       );
-      setMessage('Order marked as paid');
+      setMessage('Order marked as paid successfully');
     } catch (err) {
-      setMessage('Error marking order as paid');
+      console.error('Error marking order as paid:', err);
+      setMessage('Error marking order as paid: ' + (err.response?.data?.message || err.message));
     }
   };
 

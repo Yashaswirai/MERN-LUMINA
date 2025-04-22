@@ -4,6 +4,11 @@ import HomePage from "./pages/HomePage";
 import ShopPage from "./pages/ShopPage";
 import ProfilePage from "./pages/ProfilePage";
 import CartPage from "./pages/CartPage";
+import ShippingPage from "./pages/ShippingPage";
+import PaymentPage from "./pages/PaymentPage";
+import PlaceOrderPage from "./pages/PlaceOrderPage";
+import OrderPage from "./pages/OrderPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 import AdminProfilePage from "./components/AdminProfilePage";
 import AdminOrderManagementPage from "./components/AdminOrderDashboard";
 import PrivateRoute from "./components/PrivateRoute";
@@ -19,6 +24,7 @@ const App = () => {
         {/* Public Route */}
         <Route path="/" element={<HomePage />} />
         <Route path="/shop" element={<ShopPage />} />
+        <Route path="/product/:id" element={<ProductDetailPage />} />
 
         {/* Protected User Routes */}
         <Route
@@ -34,6 +40,38 @@ const App = () => {
           element={
             <PrivateRoute>
               <CartPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/shipping"
+          element={
+            <PrivateRoute>
+              <ShippingPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/payment"
+          element={
+            <PrivateRoute>
+              <PaymentPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/placeorder"
+          element={
+            <PrivateRoute>
+              <PlaceOrderPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/order/:id"
+          element={
+            <PrivateRoute>
+              <OrderPage />
             </PrivateRoute>
           }
         />

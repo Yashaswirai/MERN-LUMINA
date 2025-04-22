@@ -1,36 +1,86 @@
 const Order = require("../models/Order");
+const Product = require("../models/Product");
 
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
 const addOrderItems = async (req, res) => {
-  const {
-    orderItems,
-    shippingAddress,
-    paymentMethod,
-    itemsPrice,
-    taxPrice,
-    shippingPrice,
-    totalPrice,
-  } = req.body;
+  try {
+    const {
+      orderItems,
+      shippingAddress,
+      paymentMethod,
+      itemsPrice,
+      taxPrice,
+      shippingPrice,
+      totalPrice,
+    } = req.body;
 
-  if (!orderItems || orderItems.length === 0) {
-    return res.status(400).json({ message: "No order items" });
+    if (!orderItems || orderItems.length === 0) {
+      return res.status(400).json({ message: "No order items" });
+    }
+
+    // Validate required fields
+    if (!shippingAddress) {
+      return res.status(400).json({ message: "Shipping address is required" });
+    }
+
+    if (!paymentMethod) {
+      return res.status(400).json({ message: "Payment method is required" });
+    }
+
+    // Create order items with proper structure
+    const formattedOrderItems = await Promise.all(
+      orderItems.map(async (item) => {
+        // If the item doesn't have all required fields, fetch the product
+        if (!item.name || !item.price) {
+          const product = await Product.findById(item.product);
+          if (!product) {
+            throw new Error(`Product not found: ${item.product}`);
+          }
+          return {
+            name: product.name,
+            qty: item.qty,
+            image: 'image', // Just store a placeholder, we'll use product ID to fetch the image
+            price: product.price,
+            product: product._id,
+          };
+        }
+        // Handle image data - store only the product ID for image reference
+        return {
+          name: item.name,
+          qty: item.qty,
+          image: 'image', // Just store a placeholder, we'll use product ID to fetch the image
+          price: item.price,
+          product: item.product,
+        };
+      })
+    );
+
+    const order = new Order({
+      user: req.user._id,
+      orderItems: formattedOrderItems,
+      shippingAddress,
+      paymentMethod,
+      itemsPrice: itemsPrice || 0,
+      taxPrice: taxPrice || 0,
+      shippingPrice: shippingPrice || 0,
+      totalPrice: totalPrice || 0,
+    });
+
+    const createdOrder = await order.save();
+
+    // Return the created order with populated user data
+    const populatedOrder = await Order.findById(createdOrder._id).populate(
+      'user',
+      'name email'
+    );
+
+    res.status(201).json(populatedOrder);
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({ message: error.message || 'Failed to create order' });
   }
-
-  const order = new Order({
-    user: req.user._id,
-    orderItems,
-    shippingAddress,
-    paymentMethod,
-    itemsPrice,
-    taxPrice,
-    shippingPrice,
-    totalPrice,
-  });
-
-  const createdOrder = await order.save();
-  res.status(201).json(createdOrder);
 };
 
 // @desc    Get logged in user's orders
@@ -38,9 +88,12 @@ const addOrderItems = async (req, res) => {
 // @access  Private
 const getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).populate('items.product');
+    const orders = await Order.find({ user: req.user._id })
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 }); // Sort by newest first
     res.json(orders);
   } catch (err) {
+    console.error('Error fetching user orders:', err);
     res.status(500).json({ message: 'Failed to fetch orders' });
   }
 };
