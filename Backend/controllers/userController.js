@@ -53,11 +53,15 @@ const loginUser = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
+    // Generate token for client-side use
+    const clientToken = generateToken(user._id);
+
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      token: clientToken, // Include token in response
     });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
@@ -127,5 +131,5 @@ module.exports = {
   getUserProfile,
   updateUserProfile,
   generateToken,
-  logoutUser,  
+  logoutUser,
 };

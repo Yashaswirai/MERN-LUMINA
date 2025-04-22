@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import API from '../../services/api';
-import { FaBox, FaUser, FaShoppingBag, FaMapMarkerAlt, FaCreditCard, FaCalendarAlt, FaTruck, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaBox, FaUser, FaShoppingBag, FaMapMarkerAlt, FaCreditCard, FaCalendarAlt, FaTruck, FaCheckCircle, FaTimesCircle, FaLock } from 'react-icons/fa';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { useToast } from '../../context/ToastContext';
 
@@ -11,6 +11,9 @@ const ProfilePage = () => {
   const { showSuccess, showError } = useToast();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('success'); // 'success' or 'error'
   const [orders, setOrders] = useState([]);
@@ -41,17 +44,73 @@ const ProfilePage = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await API.put('/users/profile', { name, email });
-      updateUser(res.data);  // Update user context
-      setMessage('Profile updated successfully!');
+
+      // Validate inputs
+      if (!name.trim()) {
+        throw new Error('Name cannot be empty');
+      }
+
+      if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) {
+        throw new Error('Please enter a valid email address');
+      }
+
+      // Validate password if user is updating it
+      if (showPasswordFields) {
+        if (!password) {
+          throw new Error('Password cannot be empty');
+        }
+
+        if (password.length < 6) {
+          throw new Error('Password must be at least 6 characters long');
+        }
+
+        if (password !== confirmPassword) {
+          throw new Error('Passwords do not match');
+        }
+      }
+
+      // Prepare data for API call
+      const userData = { name, email };
+
+      // Only include password if it's being updated
+      if (showPasswordFields && password) {
+        userData.password = password;
+      }
+
+      // Make API call
+      const res = await API.put('/users/profile', userData);
+
+      // Check if response contains user data
+      if (!res.data || !res.data._id) {
+        throw new Error('Invalid response from server');
+      }
+
+      // Update user context with new data
+      updateUser(res.data);
+
+      // Show success message
+      const successMessage = showPasswordFields
+        ? 'Profile and password updated successfully!'
+        : 'Profile updated successfully!';
+
+      setMessage(successMessage);
       setMessageType('success');
-      showSuccess('Profile updated successfully!');
-      setLoading(false);
+      showSuccess(successMessage);
+
+      // Reset password fields after successful update
+      if (showPasswordFields) {
+        setPassword('');
+        setConfirmPassword('');
+        setShowPasswordFields(false);
+      }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Something went wrong';
+      // Handle error
+      console.error('Profile update error:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Something went wrong';
       setMessage(errorMessage);
       setMessageType('error');
       showError(errorMessage);
+    } finally {
       setLoading(false);
     }
   };
@@ -140,6 +199,50 @@ const ProfilePage = () => {
                     className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
+
+                <div className="border-t pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordFields(!showPasswordFields)}
+                    className="text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                  >
+                    {showPasswordFields ? (
+                      <>
+                        <FaTimesCircle className="mr-2" /> Cancel Password Change
+                      </>
+                    ) : (
+                      <>
+                        <FaLock className="mr-2" /> Change Password
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {showPasswordFields && (
+                  <div className="space-y-4 border-t pt-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter new password"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <button
                   type="submit"
