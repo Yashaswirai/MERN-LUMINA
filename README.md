@@ -1,6 +1,8 @@
 # LUMINA E-Commerce Store
 
-A full-stack MERN (MongoDB, Express, React, Node.js) e-commerce application with Razorpay payment integration.
+## Internship Project for Euphoria GenX
+
+This project was completed as part of an internship and training program with **Euphoria GenX**. It demonstrates proficiency in full-stack development using the MERN stack (MongoDB, Express, React, Node.js) with Razorpay payment integration.
 
 ## Features
 
@@ -139,11 +141,40 @@ The application can be deployed to various platforms:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Internship Details
+
+**Organization**: Euphoria GenX
+**Position**: Full Stack Developer Intern
+**Duration**: 3 months
+**Project**: LUMINA E-Commerce Store
+**Technologies**: MERN Stack (MongoDB, Express, React, Node.js), Razorpay Integration
+
+## Key Learnings
+
+- Developed a complete e-commerce solution from scratch
+- Implemented secure user authentication and authorization
+- Created responsive UI with Tailwind CSS and dark/light theme support
+- Integrated Razorpay payment gateway for secure transactions
+- Built an interactive admin dashboard for product and order management
+- Gained experience in state management using React Context API
+- Implemented proper error handling and user feedback mechanisms
+
+## Certification
+
+Upon successful completion of this internship project, Euphoria GenX awarded a certificate of completion recognizing the skills and knowledge gained during the training program. The project met all the requirements and standards set by the organization, demonstrating proficiency in full-stack web development.
+
 ## Acknowledgments
 
+- [Euphoria GenX](https://euphoriagenz.com/) for the opportunity and guidance
 - [React](https://reactjs.org/)
 - [Node.js](https://nodejs.org/)
 - [Express](https://expressjs.com/)
 - [MongoDB](https://www.mongodb.com/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Razorpay](https://razorpay.com/)
+
+## Conclusion
+
+This internship project with Euphoria GenX has been an invaluable learning experience, providing hands-on experience with modern web development technologies and best practices. The LUMINA E-Commerce Store project demonstrates the ability to build a complete, production-ready web application with features comparable to commercial e-commerce platforms.
+
+The skills and knowledge gained during this internship have laid a strong foundation for a career in full-stack web development, with practical experience in both frontend and backend technologies, as well as third-party integrations like payment gateways.
