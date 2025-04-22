@@ -5,10 +5,12 @@ import API from '../../services/api';
 import { FaBox, FaUser, FaShoppingBag, FaMapMarkerAlt, FaCreditCard, FaCalendarAlt, FaTruck, FaCheckCircle, FaTimesCircle, FaLock } from 'react-icons/fa';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { useToast } from '../../context/ToastContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const ProfilePage = () => {
   const { user, updateUser } = useContext(AuthContext);
   const { showSuccess, showError } = useToast();
+  const { isDarkMode } = useTheme();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
@@ -125,19 +127,19 @@ const ProfilePage = () => {
   const getOrderStatusBadge = (order) => {
     if (order.isDelivered) {
       return (
-        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-800'}`}>
           <FaCheckCircle className="inline mr-1" /> Delivered
         </span>
       );
     } else if (order.isPaid) {
       return (
-        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-800'}`}>
           <FaTruck className="inline mr-1" /> Shipping
         </span>
       );
     } else {
       return (
-        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${isDarkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-100 text-yellow-800'}`}>
           <FaCreditCard className="inline mr-1" /> Awaiting Payment
         </span>
       );
@@ -147,18 +149,22 @@ const ProfilePage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">My Account</h1>
+        <h1 className={`text-3xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>My Account</h1>
 
         {/* Tabs */}
-        <div className="flex border-b mb-6">
+        <div className={`flex border-b mb-6 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <button
-            className={`px-4 py-2 font-medium ${activeTab === 'profile' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`px-4 py-2 font-medium ${activeTab === 'profile'
+              ? `text-blue-${isDarkMode ? '400' : '600'} border-b-2 border-blue-${isDarkMode ? '400' : '600'}`
+              : `${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}`}
             onClick={() => setActiveTab('profile')}
           >
             <FaUser className="inline mr-2" /> Profile
           </button>
           <button
-            className={`px-4 py-2 font-medium ${activeTab === 'orders' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+            className={`px-4 py-2 font-medium ${activeTab === 'orders'
+              ? `text-blue-${isDarkMode ? '400' : '600'} border-b-2 border-blue-${isDarkMode ? '400' : '600'}`
+              : `${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`}`}
             onClick={() => setActiveTab('orders')}
           >
             <FaBox className="inline mr-2" /> Orders
@@ -167,13 +173,15 @@ const ProfilePage = () => {
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="bg-gray-50 px-6 py-4 border-b">
-              <h2 className="text-xl font-semibold text-gray-800">Profile Information</h2>
+          <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden transition-colors duration-200`}>
+            <div className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} px-6 py-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Profile Information</h2>
             </div>
 
             {message && (
-              <div className={`px-6 py-3 ${messageType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+              <div className={`px-6 py-3 ${messageType === 'success'
+                ? isDarkMode ? 'bg-green-900/20 text-green-400' : 'bg-green-100 text-green-700'
+                : isDarkMode ? 'bg-red-900/20 text-red-400' : 'bg-red-100 text-red-700'}`}>
                 {message}
               </div>
             )}
@@ -181,30 +189,30 @@ const ProfilePage = () => {
             <div className="p-6">
               <form onSubmit={handleUpdateProfile} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Full Name</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                  <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Email Address</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                   />
                 </div>
 
-                <div className="border-t pt-4">
+                <div className={`border-t pt-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                   <button
                     type="button"
                     onClick={() => setShowPasswordFields(!showPasswordFields)}
-                    className="text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                    className={`${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} font-medium flex items-center`}
                   >
                     {showPasswordFields ? (
                       <>
@@ -219,25 +227,25 @@ const ProfilePage = () => {
                 </div>
 
                 {showPasswordFields && (
-                  <div className="space-y-4 border-t pt-4">
+                  <div className={`space-y-4 border-t pt-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                      <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>New Password</label>
                       <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        className={`w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900'}`}
                         placeholder="Enter new password"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                      <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1`}>Confirm New Password</label>
                       <input
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        className={`w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900'}`}
                         placeholder="Confirm new password"
                       />
                     </div>
@@ -265,56 +273,56 @@ const ProfilePage = () => {
 
         {/* Orders Tab */}
         {activeTab === 'orders' && (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="bg-gray-50 px-6 py-4 border-b">
-              <h2 className="text-xl font-semibold text-gray-800">Order History</h2>
+          <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-md overflow-hidden transition-colors duration-200`}>
+            <div className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} px-6 py-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h2 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Order History</h2>
             </div>
 
             {loading ? (
               <div className="flex justify-center items-center p-8">
                 <div className="text-center">
                   <LoadingSpinner size="large" color="blue" />
-                  <p className="mt-4 text-gray-600">Loading your orders...</p>
+                  <p className={`mt-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Loading your orders...</p>
                 </div>
               </div>
             ) : orders.length === 0 ? (
               <div className="p-8 text-center">
-                <FaShoppingBag className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-                <p className="text-gray-500 mb-6">When you place an order, it will appear here.</p>
+                <FaShoppingBag className={`mx-auto h-12 w-12 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} mb-4`} />
+                <h3 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'} mb-2`}>No orders yet</h3>
+                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-6`}>When you place an order, it will appear here.</p>
                 <Link to="/shop" className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
                   Start Shopping
                 </Link>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className={`min-w-full divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+                  <thead className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Order ID</th>
+                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Date</th>
+                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Total</th>
+                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Status</th>
+                      <th className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className={`${isDarkMode ? 'bg-gray-800 divide-y divide-gray-700' : 'bg-white divide-y divide-gray-200'}`}>
                     {orders.map((order) => (
-                      <tr key={order._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <tr key={order._id} className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors duration-150`}>
+                        <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                           #{order._id.substring(order._id.length - 8)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                           <FaCalendarAlt className="inline mr-1" /> {formatDate(order.createdAt)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                           ${order.totalPrice.toFixed(2)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {getOrderStatusBadge(order)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <Link to={`/order/${order._id}`} className="text-blue-600 hover:text-blue-900">
+                          <Link to={`/order/${order._id}`} className={`${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-900'}`}>
                             View Details
                           </Link>
                         </td>

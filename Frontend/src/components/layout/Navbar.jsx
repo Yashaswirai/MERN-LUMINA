@@ -2,6 +2,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState, useEffect, useRef } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { CartContext } from "../../context/CartContext";
+import { useTheme } from "../../context/ThemeContext";
+import ThemeToggle from "../common/ThemeToggle";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -30,14 +32,17 @@ const Navbar = () => {
     navigate("/");
   };
 
+  // Get theme context
+  const { isDarkMode } = useTheme();
+
   return (
-    <nav className="bg-gray-800 text-white shadow-md">
+    <nav className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-800'} text-white shadow-md transition-colors duration-200`}>
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link to="/" className="font-bold text-xl text-white">
           LUMINA
         </Link>
 
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-4">
           <Link to="/shop" className="hover:text-gray-300">
             Shop
           </Link>
@@ -56,24 +61,24 @@ const Navbar = () => {
                     </svg>
                   </button>
                   {adminMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                    <div className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 z-10 ${isDarkMode ? 'bg-gray-800 text-gray-200' : 'bg-white text-gray-800'}`}>
                       <Link
                         to="/admin/dashboard"
-                        className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                        className={`block px-4 py-2 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         Dashboard
                       </Link>
                       <Link
                         to="/admin/orders"
-                        className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                        className={`block px-4 py-2 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         Orders
                       </Link>
                       <Link
                         to="/admin/profile"
-                        className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                        className={`block px-4 py-2 ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                         onClick={() => setAdminMenuOpen(false)}
                       >
                         Profile
@@ -97,7 +102,10 @@ const Navbar = () => {
             </Link>
           )}
 
-          {/* Only show cart icon when user is logged in */}
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
+          {/* Cart Icon - Only show when user is logged in */}
           {user && (
             <Link to="/cart" className="relative hover:text-gray-300">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

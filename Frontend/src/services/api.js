@@ -33,9 +33,13 @@ API.interceptors.response.use(
 
       // Handle 401 Unauthorized errors
       if (error.response.status === 401) {
-        // Could redirect to login or clear user data
-        // localStorage.removeItem('userInfo');
-        // window.location.href = '/';
+        // Clear user data on authentication failure
+        localStorage.removeItem('userInfo');
+
+        // Only redirect if not already on the login page to prevent redirect loops
+        if (window.location.pathname !== '/') {
+          window.location.href = '/';
+        }
       }
     } else if (error.request) {
       // The request was made but no response was received

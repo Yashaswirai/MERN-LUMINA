@@ -5,6 +5,7 @@ import API from "../../services/api";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { useToast } from "../../context/ToastContext";
+import { useTheme } from "../../context/ThemeContext";
 
 const DashboardPage = () => {
   const { showSuccess, showError } = useToast();
@@ -127,36 +128,41 @@ const DashboardPage = () => {
     }
   }, [message]);
 
+  // Get theme context
+  const { isDarkMode } = useTheme();
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+      <h1 className={`text-3xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Admin Dashboard</h1>
 
       {message && (
-        <div className={`p-4 mb-6 rounded ${messageType === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+        <div className={`p-4 mb-6 rounded ${messageType === "success"
+          ? isDarkMode ? "bg-green-900/20 text-green-400" : "bg-green-100 text-green-700"
+          : isDarkMode ? "bg-red-900/20 text-red-400" : "bg-red-100 text-red-700"}`}>
           {message}
         </div>
       )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-          <h3 className="text-gray-500 text-sm font-medium">TOTAL PRODUCTS</h3>
-          <p className="text-3xl font-bold">{stats.totalProducts}</p>
+        <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-md border-l-4 border-blue-500 transition-colors duration-200`}>
+          <h3 className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-sm font-medium`}>TOTAL PRODUCTS</h3>
+          <p className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{stats.totalProducts}</p>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
-          <h3 className="text-gray-500 text-sm font-medium">TOTAL INVENTORY</h3>
-          <p className="text-3xl font-bold">{stats.totalStock}</p>
+        <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-md border-l-4 border-green-500 transition-colors duration-200`}>
+          <h3 className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-sm font-medium`}>TOTAL INVENTORY</h3>
+          <p className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{stats.totalStock}</p>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
-          <h3 className="text-gray-500 text-sm font-medium">LOW STOCK ITEMS</h3>
-          <p className="text-3xl font-bold">{stats.lowStock}</p>
+        <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-md border-l-4 border-yellow-500 transition-colors duration-200`}>
+          <h3 className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-sm font-medium`}>LOW STOCK ITEMS</h3>
+          <p className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{stats.lowStock}</p>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
-          <h3 className="text-gray-500 text-sm font-medium">NEW THIS WEEK</h3>
-          <p className="text-3xl font-bold">{stats.newProducts}</p>
+        <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-md border-l-4 border-purple-500 transition-colors duration-200`}>
+          <h3 className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-sm font-medium`}>NEW THIS WEEK</h3>
+          <p className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{stats.newProducts}</p>
         </div>
       </div>
 
@@ -169,7 +175,7 @@ const DashboardPage = () => {
           <input
             type="text"
             placeholder="Search products..."
-            className="pl-10 pr-4 py-2 border rounded-lg w-full md:w-64"
+            className={`pl-10 pr-4 py-2 border rounded-lg w-full md:w-64 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900'} transition-colors duration-200`}
             value={searchTerm}
             onChange={handleSearch}
           />
@@ -184,25 +190,25 @@ const DashboardPage = () => {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow overflow-hidden transition-colors duration-200`}>
         {loading ? (
           <div className="flex justify-center items-center p-8">
             <div className="text-center">
               <LoadingSpinner size="large" color="blue" />
-              <p className="mt-4 text-gray-600">Loading products...</p>
+              <p className={`mt-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Loading products...</p>
             </div>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="text-center p-8 text-gray-500">
+          <div className={`text-center p-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             {searchTerm ? "No products match your search" : "No products found"}
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className={`min-w-full divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
+              <thead className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
                 <tr>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider cursor-pointer`}
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center">
@@ -213,7 +219,7 @@ const DashboardPage = () => {
                     </div>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider cursor-pointer`}
                     onClick={() => handleSort('price')}
                   >
                     <div className="flex items-center">
@@ -224,7 +230,7 @@ const DashboardPage = () => {
                     </div>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider cursor-pointer`}
                     onClick={() => handleSort('countInStock')}
                   >
                     <div className="flex items-center">
@@ -235,7 +241,7 @@ const DashboardPage = () => {
                     </div>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider cursor-pointer`}
                     onClick={() => handleSort('discount')}
                   >
                     <div className="flex items-center">
@@ -246,7 +252,7 @@ const DashboardPage = () => {
                     </div>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                    className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider cursor-pointer`}
                     onClick={() => handleSort('createdAt')}
                   >
                     <div className="flex items-center">
@@ -256,14 +262,14 @@ const DashboardPage = () => {
                       ) : <FaSort className="ml-1" />}
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className={`px-6 py-3 text-left text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider`}>
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className={`${isDarkMode ? 'bg-gray-800 divide-y divide-gray-700' : 'bg-white divide-y divide-gray-200'}`}>
                 {filteredProducts.map((product) => (
-                  <tr key={product._id} className="hover:bg-gray-50">
+                  <tr key={product._id} className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors duration-150`}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 flex-shrink-0 mr-3">
@@ -277,13 +283,13 @@ const DashboardPage = () => {
                               }}
                             />
                           ) : (
-                            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                            <div className={`h-10 w-10 rounded-full ${isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'} flex items-center justify-center`}>
                               No img
                             </div>
                           )}
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{product.name}</div>
+                          <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{product.name}</div>
                           {product.iisNewCollection && (
                             <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                               New Collection
@@ -293,7 +299,7 @@ const DashboardPage = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-gray-900">${product.price.toFixed(2)}</div>
+                      <div className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${product.price.toFixed(2)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.countInStock > 10 ? 'bg-green-100 text-green-800' : product.countInStock > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
@@ -306,10 +312,10 @@ const DashboardPage = () => {
                           {product.discount}% OFF
                         </span>
                       ) : (
-                        <span className="text-gray-500">-</span>
+                        <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>-</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {new Date(product.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

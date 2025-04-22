@@ -4,6 +4,7 @@ import API from "../../services/api";
 import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
+import { useTheme } from "../../context/ThemeContext";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { FaSearch, FaFilter, FaSort } from "react-icons/fa";
 
@@ -70,7 +71,7 @@ const ShopPage = () => {
 
     addToCart(product);
     showSuccess(`${product.name} added to your cart!`);
-    
+
     // Show visual feedback
     setAddedToCart({ ...addedToCart, [product._id]: true });
 
@@ -80,13 +81,18 @@ const ShopPage = () => {
     }, 2000);
   };
 
+  // Get theme context
+  const { isDarkMode } = useTheme();
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+      <h1 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Shop Our Products</h1>
+
+      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-4 rounded-lg shadow-md mb-6 transition-colors duration-200`}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search Bar */}
           <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+            <label htmlFor="search" className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1 flex items-center`}>
               <FaSearch className="mr-1" /> Search
             </label>
             <div className="relative">
@@ -97,7 +103,7 @@ const ShopPage = () => {
                 type="text"
                 id="search"
                 placeholder="Search Products"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className={`block w-full pl-10 pr-3 py-2 border ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200`}
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
@@ -106,12 +112,12 @@ const ShopPage = () => {
 
           {/* Sorting Dropdown */}
           <div>
-            <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+            <label htmlFor="sort" className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1 flex items-center`}>
               <FaSort className="mr-1" /> Sort By
             </label>
             <select
               id="sort"
-              className="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className={`block w-full py-2 px-3 border ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200`}
               value={sortOption}
               onChange={handleSortChange}
             >
@@ -124,12 +130,12 @@ const ShopPage = () => {
 
           {/* Filter Dropdown */}
           <div>
-            <label htmlFor="filter" className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+            <label htmlFor="filter" className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-1 flex items-center`}>
               <FaFilter className="mr-1" /> Filter
             </label>
             <select
               id="filter"
-              className="block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className={`block w-full py-2 px-3 border ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200`}
               value={filterOption}
               onChange={handleFilterChange}
             >
@@ -145,12 +151,12 @@ const ShopPage = () => {
         <div className="flex justify-center items-center py-20">
           <div className="text-center">
             <LoadingSpinner size="large" color="blue" />
-            <p className="mt-4 text-gray-600">Loading products...</p>
+            <p className={`mt-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Loading products...</p>
           </div>
         </div>
       ) : products.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-xl text-gray-600 mb-4">No products found</p>
+          <p className={`text-xl ${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-4`}>No products found</p>
           <button
             onClick={() => {
               setSearchQuery('');
@@ -165,7 +171,7 @@ const ShopPage = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((product) => (
-            <div key={product._id} className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+            <div key={product._id} className={`border ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'} rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200`}>
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={`/api/products/${product._id}/image`}
@@ -184,16 +190,16 @@ const ShopPage = () => {
 
               <div className="p-4">
                 <Link to={`/product/${product._id}`} className="block">
-                  <h3 className="text-lg font-semibold mb-1 hover:text-blue-600 transition-colors">{product.name}</h3>
+                  <h3 className={`text-lg font-semibold mb-1 ${isDarkMode ? 'text-white hover:text-blue-400' : 'text-gray-900 hover:text-blue-600'} transition-colors`}>{product.name}</h3>
                 </Link>
 
-                <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
+                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-sm mb-2 line-clamp-2 transition-colors duration-200`}>{product.description}</p>
 
                 <div className="flex justify-between items-center mb-2">
                   <div>
-                    <span className="font-bold text-lg">${product.price.toFixed(2)}</span>
+                    <span className={`font-bold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${product.price.toFixed(2)}</span>
                     {product.discount > 0 && (
-                      <span className="text-gray-500 text-sm line-through ml-2">
+                      <span className={`${isDarkMode ? 'text-gray-500' : 'text-gray-500'} text-sm line-through ml-2`}>
                         ${(product.price * (1 + product.discount / 100)).toFixed(2)}
                       </span>
                     )}

@@ -1,7 +1,11 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "./context/AuthContext";
+import { useTheme } from "./context/ThemeContext";
 
 // Layout Components
 import Navbar from "./components/layout/Navbar";
+import LoadingSpinner from "./components/common/LoadingSpinner";
 
 // Auth Pages
 import LoginRegisterPage from "./pages/auth/LoginRegisterPage";
@@ -31,6 +35,36 @@ import PrivateRoute from "./routes/PrivateRoute";
 import AdminRoute from "./routes/AdminRoute";
 
 const App = () => {
+  const { loading } = useContext(AuthContext);
+  const { isDarkMode } = useTheme();
+  const [appReady, setAppReady] = useState(false);
+  const location = useLocation();
+
+  // Effect to handle initial app loading
+  useEffect(() => {
+    // Set a timeout to ensure app is ready after initial auth check
+    const timer = setTimeout(() => {
+      setAppReady(true);
+    }, 300); // Slightly longer delay to ensure everything is loaded
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Effect to track route changes
+  useEffect(() => {
+    // Reset scroll position on route change
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  // Show loading spinner during initial load
+  if (loading || !appReady) {
+    return (
+      <div className={`flex justify-center items-center min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+
   return (
     <>
       <Navbar />
