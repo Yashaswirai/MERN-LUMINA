@@ -47,7 +47,6 @@ const OrderSummary = ({ shippingAddress, paymentMethod, onPlaceOrder }) => {
         onPlaceOrder(orderData);
       }
     } catch (err) {
-      console.error('Error placing order:', err);
       setError(err.message || 'An error occurred while placing your order');
       setLoading(false);
     }
@@ -63,16 +62,12 @@ const OrderSummary = ({ shippingAddress, paymentMethod, onPlaceOrder }) => {
       }
 
       // 2. Create order in our backend
-      console.log('Creating order in backend...');
       const { data: createdOrder } = await API.post('/orders', orderData);
-      console.log('Order created:', createdOrder);
 
       // 3. Get Razorpay key
-      console.log('Getting Razorpay key...');
       const { key: razorpayKey } = await getRazorpayKey();
 
       // 4. Create Razorpay order
-      console.log('Creating Razorpay order...');
       const razorpayOrder = await createRazorpayOrder(
         totalPrice,
         `receipt_order_${createdOrder._id}`,
@@ -91,7 +86,6 @@ const OrderSummary = ({ shippingAddress, paymentMethod, onPlaceOrder }) => {
         handler: async function (response) {
           try {
             // Verify payment
-            console.log('Verifying payment...', response);
             await verifyRazorpayPayment({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -101,7 +95,6 @@ const OrderSummary = ({ shippingAddress, paymentMethod, onPlaceOrder }) => {
             // Call success callback with the created order
             onPlaceOrder(null, createdOrder);
           } catch (error) {
-            console.error('Payment verification failed:', error);
             setError('Payment verification failed: ' + (error.message || 'Unknown error'));
             setLoading(false);
           }
@@ -120,7 +113,6 @@ const OrderSummary = ({ shippingAddress, paymentMethod, onPlaceOrder }) => {
         },
         modal: {
           ondismiss: function() {
-            console.log('Razorpay checkout closed by user');
             setLoading(false);
           }
         }
@@ -131,14 +123,12 @@ const OrderSummary = ({ shippingAddress, paymentMethod, onPlaceOrder }) => {
 
       // Handle payment failures
       razorpay.on('payment.failed', function (response){
-        console.error('Razorpay payment failed:', response.error);
         setError(`Payment failed: ${response.error.description}`);
         setLoading(false);
       });
 
       razorpay.open();
     } catch (error) {
-      console.error('Razorpay payment error:', error);
       setError(error.message || 'Failed to initialize payment');
       setLoading(false);
       throw error;

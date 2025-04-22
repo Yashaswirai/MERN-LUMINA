@@ -29,6 +29,23 @@ const addOrderItems = async (req, res) => {
       return res.status(400).json({ message: "Payment method is required" });
     }
 
+    // Check product stock before creating order
+    for (const item of orderItems) {
+      const productId = item.product;
+      const quantity = item.qty;
+
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ message: `Product not found: ${productId}` });
+      }
+
+      if (product.countInStock < quantity) {
+        return res.status(400).json({
+          message: `Not enough stock for ${product.name}. Available: ${product.countInStock}, Requested: ${quantity}`
+        });
+      }
+    }
+
     // Create order items with proper structure
     const formattedOrderItems = await Promise.all(
       orderItems.map(async (item) => {
@@ -78,7 +95,6 @@ const addOrderItems = async (req, res) => {
 
     res.status(201).json(populatedOrder);
   } catch (error) {
-    console.error('Error creating order:', error);
     res.status(500).json({ message: error.message || 'Failed to create order' });
   }
 };
@@ -93,7 +109,6 @@ const getMyOrders = async (req, res) => {
       .sort({ createdAt: -1 }); // Sort by newest first
     res.json(orders);
   } catch (err) {
-    console.error('Error fetching user orders:', err);
     res.status(500).json({ message: 'Failed to fetch orders' });
   }
 };
@@ -128,7 +143,6 @@ const getAllOrders = async (req, res) => {
     const orders = await Order.find({}).populate("user", "id name email");
     res.json(orders);
   } catch (error) {
-    console.error("Error fetching orders:", error); // Add this log for debugging
     res.status(500).json({ message: 'Failed to fetch orders' });
   }
 };
@@ -151,22 +165,42 @@ const markOrderAsDelivered = async (req, res) => {
 };
 
 const updateOrderToPaid = async (req, res) => {
-  const order = await Order.findById(req.params.id);
+  try {
+    const order = await Order.findById(req.params.id);
 
-  if (order) {
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Only update stock if the order wasn't already paid
+    if (!order.isPaid) {
+      // Update product stock and increment numOrders for each item
+      for (const item of order.orderItems) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          // Decrease stock
+          product.countInStock = Math.max(0, product.countInStock - item.qty);
+          // Increment number of orders (for popularity tracking)
+          product.numOrders += 1;
+          await product.save();
+        }
+      }
+    }
+
+    // Update order payment status
     order.isPaid = true;
     order.paidAt = Date.now();
     order.paymentResult = {
-      id: req.body.paymentId, // Mocked payment ID
-      status: req.body.status, // Mocked payment status
-      update_time: req.body.update_time, // Mocked update time
-      email_address: req.body.email, // Mocked email address
+      id: req.body.paymentId, // Payment ID
+      status: req.body.status, // Payment status
+      update_time: req.body.update_time, // Update time
+      email_address: req.body.email, // Email address
     };
 
     const updatedOrder = await order.save();
     res.json(updatedOrder);
-  } else {
-    res.status(404).json({ message: "Order not found" });
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Failed to update order payment status' });
   }
 };
 

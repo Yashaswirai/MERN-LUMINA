@@ -1,5 +1,6 @@
 const razorpay = require('../config/razorpay');
 const Order = require('../models/Order');
+const Product = require('../models/Product');
 const crypto = require('crypto');
 
 // @desc    Create Razorpay order
@@ -7,12 +8,10 @@ const crypto = require('crypto');
 // @access  Private
 const createOrder = async (req, res) => {
   try {
-    console.log('Create order request body:', req.body);
     const { amount, currency = 'INR', receipt, notes } = req.body;
 
     // Validate amount
     if (!amount || amount <= 0) {
-      console.log('Invalid amount:', amount);
       return res.status(400).json({ message: 'Invalid amount' });
     }
 
@@ -24,9 +23,7 @@ const createOrder = async (req, res) => {
       notes,
     };
 
-    console.log('Creating Razorpay order with options:', options);
     const order = await razorpay.orders.create(options);
-    console.log('Razorpay order created:', order);
 
     res.status(200).json({
       success: true,
@@ -64,14 +61,27 @@ const verifyPayment = async (req, res) => {
       if (generatedSignature !== razorpay_signature) {
         return res.status(400).json({ message: 'Invalid payment signature' });
       }
-    } else {
-      console.log('Skipping signature verification in test mode');
     }
 
     // Update the order in your database
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Only update stock if the order wasn't already paid
+    if (!order.isPaid) {
+      // Update product stock and increment numOrders for each item
+      for (const item of order.orderItems) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          // Decrease stock
+          product.countInStock = Math.max(0, product.countInStock - item.qty);
+          // Increment number of orders (for popularity tracking)
+          product.numOrders += 1;
+          await product.save();
+        }
+      }
     }
 
     order.isPaid = true;
@@ -106,8 +116,6 @@ const getRazorpayKey = (req, res) => {
   // Use test key if not set in environment
   const key = process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy_key_for_testing';
   const isTestMode = !process.env.RAZORPAY_KEY_ID || process.env.NODE_ENV !== 'production';
-
-  console.log('Razorpay key requested:', { key, isTestMode });
 
   res.status(200).json({
     key,

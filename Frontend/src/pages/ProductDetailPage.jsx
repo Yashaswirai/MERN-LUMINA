@@ -2,21 +2,29 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 import API from '../utils/api';
-import { FaArrowLeft, FaShoppingCart, FaStar, FaStarHalfAlt, FaRegStar, FaCheck, FaTimes, FaShippingFast, FaBox } from 'react-icons/fa';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { FaArrowLeft, FaShoppingCart, FaStar, FaStarHalfAlt, FaRegStar, FaCheck, FaTimes, FaShippingFast, FaBox, FaHeart, FaShare } from 'react-icons/fa';
 
 const ProductDetailPage = () => {
   const { id: productId } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const { addToCart } = useContext(CartContext);
-  
+  const { addToCart, cartItems } = useContext(CartContext);
+  const { showSuccess, showError, showInfo } = useToast();
+
+  // Check if product is already in cart
+  const isInCart = () => {
+    return cartItems.some(item => item._id === productId);
+  };
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
-  
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -29,70 +37,96 @@ const ProductDetailPage = () => {
         setLoading(false);
       }
     };
-    
+
     fetchProduct();
   }, [productId]);
-  
+
   const handleAddToCart = () => {
     if (!user) {
+      showError('Please login to add items to your cart');
       navigate('/');
       return;
     }
-    
+
     if (product && quantity > 0) {
+      if (isInCart()) {
+        showInfo('This product is already in your cart. You can adjust the quantity there.');
+        return;
+      }
+
       addToCart({
         ...product,
         qty: quantity
       });
       setAddedToCart(true);
-      
+      showSuccess(`${product.name} added to your cart!`);
+
       // Reset after 3 seconds
       setTimeout(() => {
         setAddedToCart(false);
       }, 3000);
     }
   };
-  
+
+  const handleBuyNow = () => {
+    if (!user) {
+      showError('Please login to purchase items');
+      navigate('/');
+      return;
+    }
+
+    if (product && quantity > 0) {
+      addToCart({
+        ...product,
+        qty: quantity
+      });
+      navigate('/cart');
+    }
+  };
+
   const renderRatingStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
-    
+
     // Add full stars
     for (let i = 0; i < fullStars; i++) {
       stars.push(<FaStar key={`full-${i}`} className="text-yellow-400" />);
     }
-    
+
     // Add half star if needed
     if (hasHalfStar) {
       stars.push(<FaStarHalfAlt key="half" className="text-yellow-400" />);
     }
-    
+
     // Add empty stars
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     for (let i = 0; i < emptyStars; i++) {
       stars.push(<FaRegStar key={`empty-${i}`} className="text-yellow-400" />);
     }
-    
+
     return stars;
   };
-  
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="text-center">
+          <LoadingSpinner size="large" color="blue" />
+          <p className="mt-4 text-gray-600">Loading product details...</p>
+        </div>
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           {error}
         </div>
-        <button 
-          onClick={() => navigate(-1)} 
+        <button
+          onClick={() => navigate(-1)}
           className="mt-4 flex items-center text-blue-600 hover:text-blue-800"
         >
           <FaArrowLeft className="mr-2" /> Go Back
@@ -100,15 +134,15 @@ const ProductDetailPage = () => {
       </div>
     );
   }
-  
+
   if (!product) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
           Product not found
         </div>
-        <button 
-          onClick={() => navigate('/shop')} 
+        <button
+          onClick={() => navigate('/shop')}
           className="mt-4 flex items-center text-blue-600 hover:text-blue-800"
         >
           <FaArrowLeft className="mr-2" /> Back to Shop
@@ -116,7 +150,7 @@ const ProductDetailPage = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
@@ -128,7 +162,7 @@ const ProductDetailPage = () => {
           <span className="mx-2">/</span>
           <span className="text-gray-700">{product.name}</span>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Product Image */}
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -147,7 +181,7 @@ const ProductDetailPage = () => {
               )}
             </div>
           </div>
-          
+
           {/* Product Details */}
           <div className="space-y-6">
             <div>
@@ -164,7 +198,7 @@ const ProductDetailPage = () => {
                 <span className="text-gray-500 text-sm">(24 reviews)</span>
               </div>
             </div>
-            
+
             <div className="flex items-center">
               <span className="text-3xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
               {product.discount > 0 && (
@@ -178,9 +212,9 @@ const ProductDetailPage = () => {
                 </>
               )}
             </div>
-            
+
             <p className="text-gray-700">{product.description}</p>
-            
+
             <div className="flex items-center space-x-4">
               <div className={`flex items-center ${product.countInStock > 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {product.countInStock > 0 ? (
@@ -193,18 +227,18 @@ const ProductDetailPage = () => {
                   </>
                 )}
               </div>
-              
+
               {product.countInStock > 0 && (
                 <div className="text-gray-600">
                   <FaBox className="inline mr-1" /> {product.countInStock} units available
                 </div>
               )}
             </div>
-            
+
             {product.countInStock > 0 && (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center border rounded-md">
-                  <button 
+                  <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="px-3 py-1 border-r"
                     disabled={quantity <= 1}
@@ -212,7 +246,7 @@ const ProductDetailPage = () => {
                     -
                   </button>
                   <span className="px-4 py-1">{quantity}</span>
-                  <button 
+                  <button
                     onClick={() => setQuantity(Math.min(product.countInStock, quantity + 1))}
                     className="px-3 py-1 border-l"
                     disabled={quantity >= product.countInStock}
@@ -220,31 +254,50 @@ const ProductDetailPage = () => {
                     +
                   </button>
                 </div>
-                
-                {user ? (
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={addedToCart}
-                    className={`flex items-center px-6 py-2 rounded-md ${
-                      addedToCart
-                        ? 'bg-green-600 text-white'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
-                    }`}
-                  >
-                    <FaShoppingCart className="mr-2" />
-                    {addedToCart ? 'Added to Cart!' : 'Add to Cart'}
-                  </button>
-                ) : (
-                  <Link 
-                    to="/"
-                    className="flex items-center px-6 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    <FaShoppingCart className="mr-2" /> Login to Buy
-                  </Link>
-                )}
+
+                <div className="flex space-x-3">
+                  {user ? (
+                    <>
+                      <button
+                        onClick={handleAddToCart}
+                        disabled={addedToCart}
+                        className={`flex items-center px-4 py-2 rounded-md ${
+                          addedToCart
+                            ? 'bg-green-600 text-white'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        } transition-colors duration-200`}
+                      >
+                        <FaShoppingCart className="mr-2" />
+                        {addedToCart ? 'Added!' : 'Add to Cart'}
+                      </button>
+
+                      <button
+                        onClick={handleBuyNow}
+                        className="flex items-center px-4 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200"
+                      >
+                        Buy Now
+                      </button>
+
+                      <button className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors duration-200">
+                        <FaHeart className="text-red-400" />
+                      </button>
+
+                      <button className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 hover:bg-gray-100 transition-colors duration-200">
+                        <FaShare className="text-blue-400" />
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      to="/"
+                      className="flex items-center px-6 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200"
+                    >
+                      <FaShoppingCart className="mr-2" /> Login to Buy
+                    </Link>
+                  )}
+                </div>
               </div>
             )}
-            
+
             <div className="border-t pt-4 space-y-2">
               <div className="flex items-center text-gray-600">
                 <FaShippingFast className="mr-2" /> Free shipping on orders over $100
@@ -255,7 +308,7 @@ const ProductDetailPage = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Product Details Tabs */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
           <div className="border-b">
@@ -266,7 +319,7 @@ const ProductDetailPage = () => {
           <div className="p-6">
             <h3 className="text-lg font-semibold mb-3">Description</h3>
             <p className="text-gray-700 mb-6">{product.description}</p>
-            
+
             <h3 className="text-lg font-semibold mb-3">Specifications</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="border-b pb-2">
@@ -284,7 +337,7 @@ const ProductDetailPage = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Related Products Placeholder */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4">You May Also Like</h2>

@@ -31,24 +31,17 @@ const RazorpayPayment = ({ order, onSuccess, onError }) => {
   const handlePayment = async () => {
     try {
       setLoading(true);
-      console.log('Starting payment process for order:', order);
-
       // Get Razorpay key
-      console.log('Getting Razorpay key...');
-      const { key: razorpayKey, isTestMode } = await getRazorpayKey();
-      console.log('Razorpay key received:', razorpayKey, 'isTestMode:', isTestMode);
+      const { key: razorpayKey } = await getRazorpayKey();
 
       // Create Razorpay order
-      console.log('Creating Razorpay order...');
       const razorpayOrder = await createRazorpayOrder(
         order.totalPrice,
         `receipt_order_${order._id}`,
         { orderId: order._id }
       );
-      console.log('Razorpay order created:', razorpayOrder);
 
       // Configure Razorpay options
-      console.log('Configuring Razorpay options...');
       const options = {
         key: razorpayKey,
         amount: razorpayOrder.amount,
@@ -58,7 +51,6 @@ const RazorpayPayment = ({ order, onSuccess, onError }) => {
         image: 'https://via.placeholder.com/150?text=LUMINA',
         order_id: razorpayOrder.id,
         handler: async function (response) {
-          console.log('Razorpay payment successful, verifying payment...', response);
           try {
             // Verify payment
             const data = await verifyRazorpayPayment({
@@ -67,13 +59,11 @@ const RazorpayPayment = ({ order, onSuccess, onError }) => {
               razorpay_signature: response.razorpay_signature,
             }, order._id);
 
-            console.log('Payment verification successful:', data);
             // Call success callback
             if (onSuccess) {
               onSuccess(data);
             }
           } catch (error) {
-            console.error('Payment verification failed:', error);
             setError('Payment verification failed: ' + (error.message || 'Unknown error'));
             if (onError) {
               onError(error);
@@ -94,17 +84,13 @@ const RazorpayPayment = ({ order, onSuccess, onError }) => {
         },
         modal: {
           ondismiss: function() {
-            console.log('Razorpay checkout closed by user');
             setLoading(false);
           }
         }
       };
 
-      console.log('Opening Razorpay checkout with options:', options);
-
       // Check if window.Razorpay exists
       if (!window.Razorpay) {
-        console.error('Razorpay SDK not loaded properly');
         setError('Razorpay SDK not loaded properly. Please refresh the page and try again.');
         setLoading(false);
         return;
@@ -115,7 +101,6 @@ const RazorpayPayment = ({ order, onSuccess, onError }) => {
 
       // Handle payment failures
       razorpay.on('payment.failed', function (response){
-        console.error('Razorpay payment failed:', response.error);
         setError(`Payment failed: ${response.error.description}`);
         setLoading(false);
         if (onError) {
@@ -127,7 +112,6 @@ const RazorpayPayment = ({ order, onSuccess, onError }) => {
       razorpay.open();
       setLoading(false);
     } catch (error) {
-      console.error('Payment initialization failed:', error);
       setError('Payment initialization failed: ' + (error.message || 'Unknown error'));
       setLoading(false);
       if (onError) {
