@@ -22,7 +22,7 @@ const HomePage = () => {
       console.log("Login response:", res.data);
   
       if (res.data.isAdmin) {
-        navigate("/admin/profile"); // or "/admin/dashboard" if that's what you want
+        navigate("/admin/dashboard"); // or "/admin/dashboard" if that's what you want
       } else {
         navigate("/shop");
       }

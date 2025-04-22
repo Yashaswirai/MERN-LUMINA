@@ -1,15 +1,17 @@
 // components/AdminRoute.jsx
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/useAuth';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 const AdminRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
 
-  if (!user || !user.isAdmin) {
-    return <Navigate to="/" />;
+  if (user === null) {
+    // Show a loading spinner or placeholder while user data is being fetched
+    return <div>Loading...</div>;
   }
 
-  return children;
+  return user && user.isAdmin ? children : <Navigate to="/login" />;
 };
 
 export default AdminRoute;

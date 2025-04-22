@@ -41,12 +41,23 @@ const loginUser = async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '7d', // Token expiration
+    });
+
+    // Set token in a cookie
+    res.cookie('token', token, {
+      httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
+      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+      sameSite: 'strict', // Protect against CSRF
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      token: generateToken(user._id),
     });
   } else {
     res.status(401).json({ message: 'Invalid email or password' });
@@ -58,17 +69,15 @@ const loginUser = async (req, res) => {
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = async (req, res) => {
-  const user = await User.findById(req.user._id);
-
-  if (user) {
+  if (req.user) {
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin
+      _id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+      isAdmin: req.user.isAdmin,
     });
   } else {
-    res.status(404).json({ message: 'User not found' });
+    res.status(401).json({ message: 'Not authorized' });
   }
 };
 
@@ -100,6 +109,17 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+// @desc    Logout user
+// @route   POST /api/users/logout
+// @access  Public
+const logoutUser = (req, res) => {
+  res.cookie('token', '', {
+    httpOnly: true,
+    expires: new Date(0), // Expire the cookie immediately
+  });
+
+  res.json({ message: 'Logged out successfully' });
+};
 
 module.exports = {
   registerUser,
@@ -107,4 +127,5 @@ module.exports = {
   getUserProfile,
   updateUserProfile,
   generateToken,
+  logoutUser,  
 };
