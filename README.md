@@ -165,7 +165,7 @@ Upon successful completion of this internship project, Euphoria GenX awarded a c
 
 ## Acknowledgments
 
-- [Euphoria GenX](https://euphoriagenz.com/) for the opportunity and guidance
+- [Euphoria GenX](https://euphoriagenx.com/) for the opportunity and guidance
 - [React](https://reactjs.org/)
 - [Node.js](https://nodejs.org/)
 - [Express](https://expressjs.com/)
