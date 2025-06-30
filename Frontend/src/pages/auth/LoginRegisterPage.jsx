@@ -306,6 +306,8 @@ const LoginRegisterPage = () => {
           </div>
         </div>
       </div>
+      <small>For admin Access:- admin@admin.com(email);admin(password)</small><br />
+      <small>For Normal User:- real@test.com(email);123456(password)</small>
     </div>
   );
 };
