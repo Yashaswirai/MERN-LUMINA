@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const path = require('path');
 
 // @desc    Get all products
 // @route   GET /api/products
@@ -170,12 +171,16 @@ const getProductImage = async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (!product || !product.image || !product.image.data) {
-      return res.status(404).json({ message: 'Image not found' });
+      // Return a default image or 404
+      return res.status(404).sendFile(path.join(__dirname, '../assets/no-image.png'));
     }
 
+    // Set proper cache headers
+    res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
     res.set('Content-Type', product.image.contentType);
     res.send(product.image.data);
   } catch (error) {
+    console.error('Error serving product image:', error);
     res.status(500).json({ message: error.message });
   }
 };

@@ -275,7 +275,7 @@ const DashboardPage = () => {
                         <div className="h-10 w-10 flex-shrink-0 mr-3">
                           {product.image ? (
                             <img
-                              src={`/api/products/${product._id}/image`}
+                              src={`${API.defaults.baseURL}/products/${product._id}/image`}
                               alt={product.name}
                               className="h-10 w-10 rounded-full object-cover"
                               onError={(e) => {

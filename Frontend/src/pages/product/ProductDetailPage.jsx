@@ -169,7 +169,7 @@ const ProductDetailPage = () => {
             <div className="h-96 bg-gray-100 flex items-center justify-center">
               {product.image ? (
                 <img
-                  src={`/api/products/${product._id}/image`}
+                  src={`${API.defaults.baseURL}/products/${product._id}/image`}
                   alt={product.name}
                   className="max-h-full max-w-full object-contain"
                   onError={(e) => {

@@ -359,7 +359,7 @@ const OrderPage = () => {
                         <div className="flex items-center space-x-4">
                           <div className={`w-20 h-20 flex-shrink-0 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded-lg overflow-hidden transition-colors duration-200`}>
                             <img
-                              src={`/api/products/${item.product}/image`}
+                              src={`${API.defaults.baseURL}/products/${item.product}/image`}
                               alt={item.name}
                               className="w-full h-full object-cover"
                               onError={(e) => {

@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { CartContext } from '../../context/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { API } from '../../services/api';
 
 const CartPage = () => {
   const { cartItems, removeFromCart, updateQuantity, totalPrice } = useContext(CartContext);
@@ -31,9 +32,12 @@ const CartPage = () => {
                   <div className="w-16 h-16 flex-shrink-0 mr-4 bg-gray-200 rounded">
                     {item.image && (
                       <img
-                        src={`/api/products/${item._id}/image`}
+                        src={`${API.defaults.baseURL}/products/${item._id}/image`}
                         alt={item.name}
                         className="w-full h-full object-cover rounded"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/64x64?text=No+Image';
+                        }}
                       />
                     )}
                   </div>

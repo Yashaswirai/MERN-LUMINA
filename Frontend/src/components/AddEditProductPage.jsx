@@ -41,7 +41,7 @@ const AddEditProductPage = () => {
 
         // If product has an image, set the preview
         if (data.image) {
-          setImagePreview(`/api/products/${productId}/image`);
+          setImagePreview(`${API.defaults.baseURL}/products/${productId}/image`);
         }
 
         setLoading(false);

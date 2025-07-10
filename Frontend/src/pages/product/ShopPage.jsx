@@ -177,7 +177,7 @@ const ShopPage = () => {
             <div key={product._id} className={`border ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'} rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-200`}>
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={`/api/products/${product._id}/image`}
+                  src={`${API.defaults.baseURL}/products/${product._id}/image`}
                   alt={product.name}
                   className="w-full h-full object-cover object-center"
                   onError={(e) => {
