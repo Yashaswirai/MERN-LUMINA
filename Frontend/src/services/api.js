@@ -1,57 +1,32 @@
 import axios from 'axios';
 
-// Update to use environment variable with fallback
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// IMPORTANT: This should be your complete backend URL including /api
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mern-lumina.onrender.com/api';
+console.log('API Base URL being used:', API_BASE_URL);
 
 const API = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // Always include credentials (cookies)
+  withCredentials: true,
 });
 
-// Add token to headers if available
-API.interceptors.request.use((config) => {
-  const userInfoStr = localStorage.getItem('userInfo');
-  if (userInfoStr) {
-    try {
-      const user = JSON.parse(userInfoStr);
-      if (user && user.token) {
-        config.headers.Authorization = `Bearer ${user.token}`;
-      }
-    } catch (error) {
-      console.error('Error parsing user info:', error);
-    }
-  }
-  return config;
-});
+// Add detailed logging for debugging
+API.interceptors.request.use(
+  (config) => {
+    console.log('Making request to:', config.baseURL + config.url);
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-// Add response interceptor to handle errors
 API.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('Response received:', response.status);
+    return response;
+  },
   (error) => {
-    // Handle specific error cases
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.error('Response error:', error.response.status, error.response.data);
-
-      // Handle 401 Unauthorized errors
-      if (error.response.status === 401) {
-        // Clear user data on authentication failure
-        localStorage.removeItem('userInfo');
-
-        // Only redirect if not already on the login page to prevent redirect loops
-        if (window.location.pathname !== '/') {
-          window.location.href = '/';
-        }
-      }
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error('Request error:', error.request);
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.error('Error:', error.message);
-    }
-
+    console.error('API Error:', error.message);
+    console.error('Request was to:', error.config?.url);
+    console.error('Full error:', error);
     return Promise.reject(error);
   }
 );

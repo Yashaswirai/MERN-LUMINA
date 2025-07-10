@@ -47,20 +47,24 @@ const LoginRegisterPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (!validateLoginForm()) return;
-
     setLoginLoading(true);
     try {
+      console.log('Attempting login to:', API.defaults.baseURL + "/users/login");
+      
       const res = await API.post("/users/login", loginData);
+      console.log('Login response status:', res.status);
+      console.log('Login response data:', res.data);
+      
+      if (!res.data) {
+        throw new Error('Empty response received from server');
+      }
 
       // First set the user data in context and localStorage
       const loginResult = login(res.data);
 
       if (loginResult.success) {
         showSuccess('Login successful!');
-
-        // Add a longer delay before navigation to ensure state is fully updated
+        
         setTimeout(() => {
           if (res.data.isAdmin) {
             navigate("/admin/dashboard");
@@ -68,11 +72,12 @@ const LoginRegisterPage = () => {
             navigate("/shop");
           }
           setLoginLoading(false);
-        }, 500); // Increased delay for more reliable state updates
+        }, 500);
       } else {
         throw new Error('Login failed');
       }
     } catch (err) {
+      console.error('Login error full details:', err);
       const errorMessage = err.response?.data?.message || 'Login failed. Please check your credentials.';
       showError(errorMessage);
       setLoginErrors({ general: errorMessage });
@@ -313,3 +318,4 @@ const LoginRegisterPage = () => {
 };
 
 export default LoginRegisterPage;
+

@@ -21,4 +21,9 @@ router.route('/profile')
 
 router.get('/me', protect, getUserProfile);
 
+// Add a test route to verify API connectivity
+router.get('/test', (req, res) => {
+  res.json({ message: 'Backend API is working!' });
+});
+
 module.exports = router;

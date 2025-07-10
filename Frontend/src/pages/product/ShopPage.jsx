@@ -25,6 +25,7 @@ const ShopPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
+      console.log('Fetching products from:', API.defaults.baseURL + "/products");
       const res = await API.get("/products", {
         params: {
           search: searchQuery,
@@ -32,8 +33,10 @@ const ShopPage = () => {
           filter: filterOption,
         },
       });
+      console.log('Products response:', res.data);
       setProducts(res.data.products);
     } catch (error) {
+      console.error('Product fetch error:', error);
       showError("Failed to load products. Please try again.");
     } finally {
       setLoading(false);
