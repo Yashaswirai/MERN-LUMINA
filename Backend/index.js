@@ -19,8 +19,8 @@ app.use(cookieParser()); // Use cookie-parser middleware
 
 // CORS configuration
 app.use(cors({
-  origin: 'http://localhost:5173', // Frontend URL
-  credentials: true, // Allow cookies
+  origin: ['https://your-frontend-url.onrender.com', 'http://localhost:5173'],
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
