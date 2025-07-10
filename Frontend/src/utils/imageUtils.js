@@ -1,12 +1,11 @@
-import API from '../services/api';
-
 /**
  * Get the full URL for a product image
  * @param {string} productId - The product ID
  * @returns {string} The full image URL
  */
 export const getProductImageUrl = (productId) => {
-  return `${API.defaults.baseURL}/products/${productId}/image`;
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mern-lumina.onrender.com/api';
+  return `${API_BASE_URL}/products/${productId}/image`;
 };
 
 /**

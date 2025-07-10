@@ -49,11 +49,7 @@ const LoginRegisterPage = () => {
     e.preventDefault();
     setLoginLoading(true);
     try {
-      console.log('Attempting login to:', API.defaults.baseURL + "/users/login");
-      
       const res = await API.post("/users/login", loginData);
-      console.log('Login response status:', res.status);
-      console.log('Login response data:', res.data);
       
       if (!res.data) {
         throw new Error('Empty response received from server');

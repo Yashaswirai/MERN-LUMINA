@@ -41,7 +41,8 @@ const AddEditProductPage = () => {
 
         // If product has an image, set the preview
         if (data.image) {
-          setImagePreview(`${API.defaults.baseURL}/products/${productId}/image`);
+          const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mern-lumina.onrender.com/api';
+          setImagePreview(`${API_BASE_URL}/products/${productId}/image`);
         }
 
         setLoading(false);

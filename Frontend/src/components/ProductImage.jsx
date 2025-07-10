@@ -1,14 +1,15 @@
 import React from 'react';
-import API from '../services/api';
 
-const ProductImage = ({ 
-  productId, 
-  alt = 'Product image', 
-  className = '', 
-  width = 300, 
-  height = 300 
+const ProductImage = ({
+  productId,
+  alt = 'Product image',
+  className = '',
+  width = 300,
+  height = 300
 }) => {
-  const imageUrl = `${API.defaults.baseURL}/products/${productId}/image`;
+  // Use environment variable or fallback to production URL
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mern-lumina.onrender.com/api';
+  const imageUrl = `${API_BASE_URL}/products/${productId}/image`;
   const placeholderUrl = `https://via.placeholder.com/${width}x${height}?text=No+Image`;
 
   return (
