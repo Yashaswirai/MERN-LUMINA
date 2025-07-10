@@ -19,7 +19,10 @@ app.use(cookieParser()); // Use cookie-parser middleware
 
 // CORS configuration
 app.use(cors({
-  origin: ['https://your-frontend-url.onrender.com', 'http://localhost:5173'],
+  origin: [
+    'https://lumina-store.onrender.com', // Add your production URL here (optional)
+    'http://localhost:5173', // Add your local development URL here
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']

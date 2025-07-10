@@ -7,6 +7,7 @@ export const AUTH_ENDPOINTS = {
   LOGIN: '/users/login',
   REGISTER: '/users/register',
   PROFILE: '/users/profile',
+  ME: '/users/me',
 };
 
 // Product endpoints
@@ -35,3 +36,4 @@ export const PAYMENT_ENDPOINTS = {
   CREATE_ORDER: '/payments/create-order',
   VERIFY_PAYMENT: '/payments/verify',
 };
+

@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// Update to use environment variable with fallback
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
 const API = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE_URL,
   withCredentials: true, // Always include credentials (cookies)
 });
 
