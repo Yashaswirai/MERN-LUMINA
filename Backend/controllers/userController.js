@@ -36,35 +36,36 @@ const registerUser = async (req, res) => {
 // @route   POST /api/users/login
 // @access  Public
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await User.findOne({ email });
-
-  if (user && (await user.matchPassword(password))) {
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '7d', // Token expiration
-    });
-
-    // Set token in a cookie
-    res.cookie('token', token, {
-      httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
-      secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-      sameSite: 'strict', // Protect against CSRF
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
-    // Generate token for client-side use
-    const clientToken = generateToken(user._id);
-
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      token: clientToken, // Include token in response
-    });
-  } else {
-    res.status(401).json({ message: 'Invalid email or password' });
+  try {
+    const { email, password } = req.body;
+    
+    const user = await User.findOne({ email });
+    
+    if (user && (await user.matchPassword(password))) {
+      // Generate token
+      const token = generateToken(user._id);
+      
+      // Set HTTP-only cookie
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      });
+      
+      // Also return token in response for JWT auth
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        token: token // Include token in response
+      });
+    } else {
+      res.status(401).json({ message: 'Invalid email or password' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 

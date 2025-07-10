@@ -8,6 +8,15 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
 
+  // Add a function to attach the token to API requests
+  const attachTokenToRequests = (token) => {
+    if (token) {
+      API.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete API.defaults.headers.common['Authorization'];
+    }
+  };
+
   // Fetch user data on page load
   useEffect(() => {
     let isMounted = true; // Flag to prevent state updates after unmount
@@ -63,23 +72,43 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  useEffect(() => {
+    const checkLoggedIn = async () => {
+      try {
+        const userInfoFromStorage = localStorage.getItem('userInfo')
+          ? JSON.parse(localStorage.getItem('userInfo'))
+          : null;
+
+        if (userInfoFromStorage) {
+          setUser(userInfoFromStorage);
+          
+          // Attach token to requests if available
+          if (userInfoFromStorage.token) {
+            attachTokenToRequests(userInfoFromStorage.token);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      }
+    };
+
+    checkLoggedIn();
+  }, []);
+
   const login = (userData) => {
     try {
-      // First update localStorage
-      localStorage.setItem('userInfo', JSON.stringify(userData));
-
-      // Then update the user state
+      // Store user data in state and localStorage
       setUser(userData);
-      setAuthError(null); // Clear any previous errors
-
-      // Reset loading state after login
-      setLoading(false);
-
-      // Return success for potential chaining
+      localStorage.setItem('userInfo', JSON.stringify(userData));
+      
+      // If token is included in the response, use it
+      if (userData.token) {
+        attachTokenToRequests(userData.token);
+      }
+      
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      setAuthError(error.message || 'Login failed');
       return { success: false, error };
     }
   };
